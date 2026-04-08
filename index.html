@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PhonePe Metrics Deep-Dive — PM Portfolio by Akash</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --bg2: #f5f4f0;
+      --bg3: #eeedea;
+      --text: #1a1a18;
+      --text2: #5f5e5a;
+      --text3: #888780;
+      --border: rgba(0,0,0,0.1);
+      --border2: rgba(0,0,0,0.18);
+      --info-bg: #e6f1fb;
+      --info-text: #185fa5;
+      --info-border: rgba(24,95,165,0.3);
+      --danger-bg: #fcebeb;
+      --danger-text: #a32d2d;
+      --warn-bg: #faeeda;
+      --warn-text: #854f0b;
+      --success-bg: #eaf3de;
+      --success-text: #3b6d11;
+      --radius: 8px;
+      --radius-lg: 12px;
+      --accent: #3266ad;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1c1c1a;
+        --bg2: #252523;
+        --bg3: #2e2e2c;
+        --text: #e8e6de;
+        --text2: #a8a69e;
+        --text3: #6e6c66;
+        --border: rgba(255,255,255,0.1);
+        --border2: rgba(255,255,255,0.18);
+        --info-bg: #042c53;
+        --info-text: #85b7eb;
+        --info-border: rgba(133,183,235,0.3);
+        --danger-bg: #501313;
+        --danger-text: #f09595;
+        --warn-bg: #412402;
+        --warn-text: #fac775;
+        --success-bg: #173404;
+        --success-text: #c0dd97;
+        --accent: #6a9fd8;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg3);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .page-header {
+      background: var(--bg);
+      border-bottom: 0.5px solid var(--border);
+      padding: 24px 32px;
+    }
+    .page-header-inner { max-width: 900px; margin: 0 auto; }
+    .breadcrumb { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+    .page-title { font-size: 22px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+    .page-sub { font-size: 14px; color: var(--text2); }
+    .page-meta { display: flex; gap: 16px; margin-top: 12px; flex-wrap: wrap; }
+    .meta-pill {
+      font-size: 11px; padding: 3px 10px; border-radius: 20px;
+      background: var(--bg2); color: var(--text2); border: 0.5px solid var(--border);
+    }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 28px 32px; }
+
+    .nav {
+      display: flex; gap: 4px; margin-bottom: 24px;
+      background: var(--bg); border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg); padding: 6px; flex-wrap: wrap;
+    }
+    .nav button {
+      padding: 7px 16px; font-size: 13px; border: none;
+      background: transparent; color: var(--text2);
+      border-radius: var(--radius); cursor: pointer; transition: all .15s; font-family: inherit;
+    }
+    .nav button:hover { background: var(--bg2); color: var(--text); }
+    .nav button.active {
+      background: var(--info-bg); color: var(--info-text);
+    }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+    @media (max-width: 600px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+    .kpi { background: var(--bg2); border-radius: var(--radius); padding: 14px 16px; }
+    .kpi-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+    .kpi-val { font-size: 22px; font-weight: 500; }
+    .kpi-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+    .red { color: var(--danger-text); }
+    .green { color: var(--success-text); }
+    .amber { color: var(--warn-text); }
+
+    .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    @media (max-width: 620px) { .chart-row { grid-template-columns: 1fr; } }
+    .chart-card {
+      background: var(--bg); border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg); padding: 16px;
+    }
+    .chart-title { font-size: 13px; font-weight: 500; color: var(--text2); margin-bottom: 10px; }
+    .chart-wrap { position: relative; width: 100%; }
+
+    .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; font-size: 11px; color: var(--text2); }
+    .legend span { display: flex; align-items: center; gap: 4px; }
+    .dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
+    .insight-box {
+      background: var(--info-bg); border: 0.5px solid var(--info-border);
+      border-radius: var(--radius); padding: 12px 16px; font-size: 13px;
+      color: var(--info-text); line-height: 1.6; margin-bottom: 16px;
+    }
+
+    .full-card {
+      background: var(--bg); border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg); padding: 16px; margin-bottom: 16px;
+    }
+    .section-label {
+      font-size: 11px; font-weight: 500; color: var(--text3);
+      text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; margin-top: 4px;
+    }
+
+    .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .bar-label { font-size: 12px; color: var(--text2); min-width: 130px; }
+    .bar-track { flex: 1; height: 8px; background: var(--bg2); border-radius: 4px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 4px; }
+    .bar-val { font-size: 12px; color: var(--text); min-width: 40px; text-align: right; font-weight: 500; }
+
+    .issue-tree { margin-bottom: 20px; }
+    .tree-card { border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 10px; }
+    .tree-header {
+      padding: 12px 16px; background: var(--bg2);
+      display: flex; align-items: center; justify-content: space-between; cursor: pointer;
+      user-select: none;
+    }
+    .tree-header:hover { background: var(--bg3); }
+    .tree-title { font-size: 14px; font-weight: 500; color: var(--text); }
+    .tree-badge { font-size: 11px; padding: 2px 10px; border-radius: 20px; font-weight: 500; white-space: nowrap; }
+    .b-red { background: var(--danger-bg); color: var(--danger-text); }
+    .b-amber { background: var(--warn-bg); color: var(--warn-text); }
+    .b-blue { background: var(--info-bg); color: var(--info-text); }
+    .tree-body { padding: 14px 16px; border-top: 0.5px solid var(--border); display: none; }
+    .tree-body.open { display: block; }
+    .hypothesis { display: flex; gap: 10px; margin-bottom: 12px; }
+    .h-num { font-size: 11px; font-weight: 500; color: var(--text3); min-width: 28px; margin-top: 2px; }
+    .h-text { font-size: 13px; color: var(--text); line-height: 1.6; }
+    .h-conf { font-size: 11px; margin-top: 4px; }
+    .caret { display: inline-block; margin-right: 8px; transition: transform .2s; color: var(--text3); }
+    .caret.open { transform: rotate(90deg); }
+
+    .reco-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+    @media (max-width: 640px) { .reco-grid { grid-template-columns: 1fr; } }
+    .reco-card {
+      background: var(--bg); border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg); padding: 16px;
+    }
+    .reco-rank { font-size: 11px; font-weight: 500; color: var(--text3); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .04em; }
+    .reco-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 8px; line-height: 1.4; }
+    .reco-desc { font-size: 12px; color: var(--text2); line-height: 1.6; margin-bottom: 12px; }
+    .pill-row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .pill { font-size: 11px; padding: 2px 8px; border-radius: 20px; }
+    .p-neutral { background: var(--bg2); color: var(--text2); }
+
+    .table-wrap { overflow-x: auto; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 420px; }
+    th {
+      font-size: 11px; font-weight: 500; color: var(--text3); text-align: left;
+      padding: 8px 12px; border-bottom: 0.5px solid var(--border);
+      text-transform: uppercase; letter-spacing: .04em; background: var(--bg2);
+    }
+    td { padding: 10px 12px; border-bottom: 0.5px solid var(--border); color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--bg2); }
+
+    .issue-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+    @media (max-width: 500px) { .issue-grid { grid-template-columns: 1fr; } }
+    .issue-box { border-radius: var(--radius); padding: 12px; }
+
+    .footer {
+      text-align: center; padding: 32px; font-size: 12px; color: var(--text3);
+      border-top: 0.5px solid var(--border); margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="breadcrumb">PM Portfolio · Project 2 of 5</div>
+    <div class="page-title">PhonePe: Metrics Deep-Dive & Root Cause Analysis</div>
+    <div class="page-sub">Simulated scenario — Transaction success rate dip among Tier 2 users post-Diwali 2024</div>
+    <div class="page-meta">
+      <span class="meta-pill">Product: PhonePe / UPI Payments</span>
+      <span class="meta-pill">Type: RCA + Metrics dashboard</span>
+      <span class="meta-pill">Author: Akash</span>
+      <span class="meta-pill">Data: NPCI / Public sources</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="nav">
+    <button class="active" onclick="show('overview',this)">Overview</button>
+    <button onclick="show('diagnosis',this)">Diagnosis</button>
+    <button onclick="show('rca',this)">Root cause</button>
+    <button onclick="show('reco',this)">Recommendations</button>
+    <button onclick="show('data',this)">Data sources</button>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div class="section active" id="s-overview">
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="kpi-label">UPI market share</div>
+        <div class="kpi-val">47.6%</div>
+        <div class="kpi-sub">PhonePe, Jan 2025</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Tier 2 transaction share</div>
+        <div class="kpi-val">~56%</div>
+        <div class="kpi-sub">Of total PhonePe volume</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Simulated TSR drop</div>
+        <div class="kpi-val red">−8%</div>
+        <div class="kpi-sub">Post-Diwali, Tier 2 segment</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">UPI baseline TSR</div>
+        <div class="kpi-val">99.2%</div>
+        <div class="kpi-sub">Industry benchmark 2024</div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-card">
+        <div class="chart-title">UPI market share by app (Jan 2025)</div>
+        <div class="legend">
+          <span><span class="dot" style="background:#4A6FBF"></span>PhonePe 47.6%</span>
+          <span><span class="dot" style="background:#6BA08A"></span>GPay 36.5%</span>
+          <span><span class="dot" style="background:#B87333"></span>Paytm 6.9%</span>
+          <span><span class="dot" style="background:#888780"></span>Others 9%</span>
+        </div>
+        <div class="chart-wrap" style="height:200px"><canvas id="c1"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Simulated Tier 2 TSR trend (Aug–Dec 2024)</div>
+        <div class="legend">
+          <span><span class="dot" style="background:#4A6FBF"></span>TSR %</span>
+          <span><span class="dot" style="background:#C08040"></span>Diwali period</span>
+        </div>
+        <div class="chart-wrap" style="height:200px"><canvas id="c2"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-card">
+        <div class="chart-title">Tier 2 transaction type mix</div>
+        <div class="legend">
+          <span><span class="dot" style="background:#4A6FBF"></span>P2P 41%</span>
+          <span><span class="dot" style="background:#6BA08A"></span>Merchant 45%</span>
+          <span><span class="dot" style="background:#B87333"></span>Bills 14%</span>
+        </div>
+        <div class="chart-wrap" style="height:200px"><canvas id="c3"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Failure reason breakdown (simulated)</div>
+        <div class="chart-wrap" style="height:200px"><canvas id="c4"></canvas></div>
+      </div>
+    </div>
+
+    <div class="insight-box">
+      Key observation: PhonePe derives ~56% of its volume from Tier 2/3 cities. A post-Diwali TSR dip in this segment is not just a UX issue — it directly threatens retention of its highest-growth user base, risking churn to Google Pay and Paytm.
+    </div>
+  </div>
+
+  <!-- DIAGNOSIS -->
+  <div class="section" id="s-diagnosis">
+    <div class="insight-box">
+      PM framing: "Transaction success rate (TSR) among Tier 2 users dropped by ~8% in the week following Diwali 2024. I want to understand whether this is a product problem, an infrastructure problem, or an external problem — and which layer to fix first."
+    </div>
+
+    <div class="section-label" style="margin-top:4px">Diagnostic framework: issue tree</div>
+    <div class="full-card">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:16px">Breaking the metric drop into layers helps avoid jumping to solutions. Each branch must be ruled in or out with data before forming hypotheses.</div>
+      <div style="font-size:14px;font-weight:500;margin-bottom:12px">TSR drop −8%</div>
+      <div class="issue-grid">
+        <div class="issue-box" style="background:var(--danger-bg)">
+          <div style="font-size:12px;font-weight:500;color:var(--danger-text);margin-bottom:4px">Technical layer</div>
+          <div style="font-size:11px;color:var(--danger-text)">Server timeouts, bank API failures, NPCI outages</div>
+        </div>
+        <div class="issue-box" style="background:var(--warn-bg)">
+          <div style="font-size:12px;font-weight:500;color:var(--warn-text);margin-bottom:4px">UX / Behavioural layer</div>
+          <div style="font-size:11px;color:var(--warn-text)">Wrong PIN, low balance, unfamiliar flow for new users</div>
+        </div>
+        <div class="issue-box" style="background:var(--info-bg)">
+          <div style="font-size:12px;font-weight:500;color:var(--info-text);margin-bottom:4px">External / Market layer</div>
+          <div style="font-size:11px;color:var(--info-text)">Surge in new users post-Diwali, connectivity issues, bank load</div>
+        </div>
+        <div class="issue-box" style="background:var(--bg2)">
+          <div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:4px">Competitive layer</div>
+          <div style="font-size:11px;color:var(--text2)">GPay promotions pulling Tier 2 users, Paytm QR cashback offers</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Metric segmentation</div>
+    <div class="chart-row">
+      <div class="chart-card">
+        <div class="chart-title">TSR by user cohort (simulated)</div>
+        <div style="margin-top:8px">
+          <div class="bar-row"><div class="bar-label">Tier 1 users</div><div class="bar-track"><div class="bar-fill" style="width:99%;background:#4A6FBF"></div></div><div class="bar-val">99.1%</div></div>
+          <div class="bar-row"><div class="bar-label">Tier 2 new users</div><div class="bar-track"><div class="bar-fill" style="width:87%;background:#C05840"></div></div><div class="bar-val">87.3%</div></div>
+          <div class="bar-row"><div class="bar-label">Tier 2 existing</div><div class="bar-track"><div class="bar-fill" style="width:94%;background:#B87333"></div></div><div class="bar-val">94.1%</div></div>
+          <div class="bar-row"><div class="bar-label">Tier 3+ users</div><div class="bar-track"><div class="bar-fill" style="width:91%;background:#6B5B93"></div></div><div class="bar-val">91.2%</div></div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">TSR by transaction type (simulated)</div>
+        <div style="margin-top:8px">
+          <div class="bar-row"><div class="bar-label">P2P transfers</div><div class="bar-track"><div class="bar-fill" style="width:97%;background:#4A6FBF"></div></div><div class="bar-val">97.2%</div></div>
+          <div class="bar-row"><div class="bar-label">Merchant payments</div><div class="bar-track"><div class="bar-fill" style="width:88%;background:#C05840"></div></div><div class="bar-val">88.4%</div></div>
+          <div class="bar-row"><div class="bar-label">Bill payments</div><div class="bar-track"><div class="bar-fill" style="width:96%;background:#6BA08A"></div></div><div class="bar-val">96.0%</div></div>
+          <div class="bar-row"><div class="bar-label">Recharges</div><div class="bar-track"><div class="bar-fill" style="width:98%;background:#888780"></div></div><div class="bar-val">98.1%</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight-box">
+      Segmentation narrows the problem: the dip is concentrated among Tier 2 new users making merchant payments. This rules out systemic infrastructure failure (which would affect P2P too) and points to a UX + connectivity combination for first-time users in merchant-dense contexts.
+    </div>
+  </div>
+
+  <!-- RCA -->
+  <div class="section" id="s-rca">
+    <div style="margin-bottom:16px;font-size:13px;color:var(--text2)">Each hypothesis is rated by likelihood (based on public data + Tier 2 behaviour patterns) and ease of validation.</div>
+
+    <div class="issue-tree">
+      <div class="tree-card">
+        <div class="tree-header" onclick="toggle('rca1',this)">
+          <div style="display:flex;align-items:center">
+            <span class="caret">›</span>
+            <span class="tree-title">H1 · Network congestion + connectivity drops</span>
+          </div>
+          <span class="tree-badge b-red">High likelihood</span>
+        </div>
+        <div class="tree-body" id="rca1">
+          <div class="hypothesis">
+            <div class="h-num">Why</div>
+            <div>
+              <div class="h-text">Tier 2 cities have significantly weaker 4G/5G coverage than metro areas. During Diwali, network load spikes dramatically due to WhatsApp, video calls, and social media — UPI API calls get deprioritised or time out mid-transaction.</div>
+              <div class="h-conf amber" style="margin-top:4px">Supporting data: NPCI acknowledged intermittent outages in March–April 2025 due to overloaded systems. Tier 2 connectivity challenges are well-documented.</div>
+            </div>
+          </div>
+          <div class="hypothesis">
+            <div class="h-num">Fix</div>
+            <div class="h-text">UPI Lite (offline mode for &lt;₹500), retry-with-confirmation UX, pending transaction status with estimated resolution time.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tree-card">
+        <div class="tree-header" onclick="toggle('rca2',this)">
+          <div style="display:flex;align-items:center">
+            <span class="caret">›</span>
+            <span class="tree-title">H2 · First-time user friction in merchant flow</span>
+          </div>
+          <span class="tree-badge b-red">High likelihood</span>
+        </div>
+        <div class="tree-body" id="rca2">
+          <div class="hypothesis">
+            <div class="h-num">Why</div>
+            <div>
+              <div class="h-text">PhonePe ran aggressive Diwali acquisition campaigns in Tier 2, bringing in users who had never transacted before. These users frequently enter wrong PINs, misread QR codes, or panic and abandon mid-flow — all counted as failures.</div>
+              <div class="h-conf amber" style="margin-top:4px">Supporting data: New user TSR is 87.3% vs 94.1% for existing Tier 2 users in our segmentation — a 7-point gap that directly explains the aggregate dip.</div>
+            </div>
+          </div>
+          <div class="hypothesis">
+            <div class="h-num">Fix</div>
+            <div class="h-text">Contextual onboarding for first merchant transaction, guided QR scan with visual validation, vernacular language prompts, 1-tap retry with pre-filled details.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tree-card">
+        <div class="tree-header" onclick="toggle('rca3',this)">
+          <div style="display:flex;align-items:center">
+            <span class="caret">›</span>
+            <span class="tree-title">H3 · Bank server overload (payer-side bank failures)</span>
+          </div>
+          <span class="tree-badge b-amber">Medium likelihood</span>
+        </div>
+        <div class="tree-body" id="rca3">
+          <div class="hypothesis">
+            <div class="h-num">Why</div>
+            <div>
+              <div class="h-text">Regional cooperative and small private banks dominant in Tier 2 cities often have limited server capacity. Diwali spikes can overload these banks' UPI endpoints — causing declines that look like PhonePe failures to the user.</div>
+              <div class="h-conf amber" style="margin-top:4px">Supporting data: Zero MDR policy means banks earn nothing per UPI transaction, reducing incentive to invest in infrastructure upgrades.</div>
+            </div>
+          </div>
+          <div class="hypothesis">
+            <div class="h-num">Fix</div>
+            <div class="h-text">Proactive "your bank is experiencing high load" messaging rather than generic failure. Suggest adding a secondary bank account. Build bank health monitor into PhonePe's backend.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tree-card">
+        <div class="tree-header" onclick="toggle('rca4',this)">
+          <div style="display:flex;align-items:center">
+            <span class="caret">›</span>
+            <span class="tree-title">H4 · Competitive promo-driven failed transaction attempts</span>
+          </div>
+          <span class="tree-badge b-blue">Lower likelihood</span>
+        </div>
+        <div class="tree-body" id="rca4">
+          <div class="hypothesis">
+            <div class="h-num">Why</div>
+            <div>
+              <div class="h-text">Paytm ran aggressive Diwali cashback campaigns targeting Tier 2 kirana merchants. Some users may have attempted PhonePe payments at merchants who only had Paytm QR codes visible — leading to mis-scans and failures.</div>
+              <div class="h-conf green" style="margin-top:4px">Lower likelihood as primary cause — Paytm's market share is at 6.9%, limiting scale. But worth monitoring as part of competitive intelligence.</div>
+            </div>
+          </div>
+          <div class="hypothesis">
+            <div class="h-num">Fix</div>
+            <div class="h-text">Merchant sticker campaigns reinforcing PhonePe acceptance, QR validation before payment attempt, real-time merchant app status indicator.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-card" style="grid-column:1/-1">
+        <div class="chart-title">Hypothesis likelihood × ease of fix matrix</div>
+        <div class="chart-wrap" style="height:260px"><canvas id="c5"></canvas></div>
+      </div>
+    </div>
+
+    <div class="insight-box">
+      Primary root cause: A combination of network-driven timeouts (external, harder to fix) and first-time user friction in merchant payment flow (internal, directly actionable). The PM recommendation prioritises the internal fix first — faster impact, within PhonePe's control.
+    </div>
+  </div>
+
+  <!-- RECOMMENDATIONS -->
+  <div class="section" id="s-reco">
+    <div style="margin-bottom:16px;font-size:13px;color:var(--text2)">Three product interventions, prioritised using an Impact × Effort lens. All address the root causes identified in the RCA.</div>
+
+    <div class="reco-grid">
+      <div class="reco-card" style="border-top:2px solid var(--danger-text)">
+        <div class="reco-rank">P1 · Ship in 2 weeks</div>
+        <div class="reco-title">Guided first-merchant-payment onboarding</div>
+        <div class="reco-desc">A 3-step contextual overlay appears the first time a new Tier 2 user scans a merchant QR. Step 1: visual PIN confirmation. Step 2: amount review with merchant name. Step 3: success animation with refund policy reminder. Reduces abandonment and wrong-PIN failures.</div>
+        <div class="pill-row">
+          <span class="pill b-red">High impact</span>
+          <span class="pill b-blue">Low effort</span>
+          <span class="pill p-neutral">UX</span>
+        </div>
+      </div>
+      <div class="reco-card" style="border-top:2px solid var(--warn-text)">
+        <div class="reco-rank">P2 · Ship in 4 weeks</div>
+        <div class="reco-title">Smart failure messaging with auto-retry</div>
+        <div class="reco-desc">Replace the generic "Payment failed" screen with context-aware messages: "Your bank is experiencing high load. We'll retry in 30 seconds." Auto-retry once; show estimated resolution time. If bank-side failure, surface the option to pay from a different linked bank account.</div>
+        <div class="pill-row">
+          <span class="pill b-red">High impact</span>
+          <span class="pill b-amber">Medium effort</span>
+          <span class="pill p-neutral">Infra + UX</span>
+        </div>
+      </div>
+      <div class="reco-card" style="border-top:2px solid var(--info-text)">
+        <div class="reco-rank">P3 · Ship in 8 weeks</div>
+        <div class="reco-title">UPI Lite push for Tier 2 merchant payments</div>
+        <div class="reco-desc">Proactively nudge Tier 2 users to enable UPI Lite (offline-capable, &lt;₹500 per transaction). Run a Diwali-timed in-app campaign with vernacular explanation. Reduces network-dependency for small merchant payments — highest failure-risk use case in this segment.</div>
+        <div class="pill-row">
+          <span class="pill b-amber">Medium impact</span>
+          <span class="pill b-amber">Medium effort</span>
+          <span class="pill p-neutral">Product + Growth</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">A/B test design for P1</div>
+    <div class="full-card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Variable</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr><td>Hypothesis</td><td>Guided onboarding overlay reduces first-merchant TSR failure by 30% among new Tier 2 users</td></tr>
+            <tr><td>Control</td><td>Existing merchant payment flow (no overlay)</td></tr>
+            <tr><td>Treatment</td><td>3-step contextual overlay on first QR scan</td></tr>
+            <tr><td>Segment</td><td>New Tier 2 users making their first merchant payment (registration ≤7 days)</td></tr>
+            <tr><td>Primary metric</td><td>Transaction success rate (TSR) within first 3 merchant attempts</td></tr>
+            <tr><td>Secondary metrics</td><td>Retry rate, wrong-PIN rate, D7 merchant transaction frequency</td></tr>
+            <tr><td>Duration</td><td>2 weeks minimum (to capture weekend merchant use patterns)</td></tr>
+            <tr><td>Split</td><td>50/50 (sufficient volume given Tier 2 new user scale)</td></tr>
+            <tr><td>Guardrail</td><td>No regression in P2P TSR; no increase in fraud flags</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="insight-box">
+      Expected outcome: P1 alone should recover 4–5 percentage points of the 8-point TSR dip within 30 days. P2 addresses the remaining gap tied to bank-side load. Together they restore baseline and set a higher TSR floor for Tier 2 new users.
+    </div>
+  </div>
+
+  <!-- DATA SOURCES -->
+  <div class="section" id="s-data">
+    <div style="font-size:13px;color:var(--text2);margin-bottom:16px">All data used in this case study. Distinguishes between real public data and simulated scenario data — critical for portfolio credibility.</div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Data point</th><th>Value</th><th>Type</th><th>Source</th></tr></thead>
+        <tbody>
+          <tr><td>PhonePe UPI market share</td><td>47.6% (Jan 2025)</td><td><span class="pill b-blue">Real</span></td><td>NPCI via Business Standard</td></tr>
+          <tr><td>Tier 2/3 transaction share</td><td>~56% of PhonePe volume</td><td><span class="pill b-blue">Real</span></td><td>PhonePe blog, Inc42</td></tr>
+          <tr><td>Tier 2 transaction mix</td><td>45% merchant, 41% P2P, 14% bills</td><td><span class="pill b-blue">Real</span></td><td>Coinlaw / PhonePe stats 2025</td></tr>
+          <tr><td>Industry TSR benchmark</td><td>99.2% (2024)</td><td><span class="pill b-blue">Real</span></td><td>PhonePe PG documentation</td></tr>
+          <tr><td>NPCI systemic outages</td><td>Mar–Apr 2025 incidents</td><td><span class="pill b-blue">Real</span></td><td>Outlook Business</td></tr>
+          <tr><td>TSR drop post-Diwali</td><td>−8% Tier 2 segment</td><td><span class="pill b-amber">Simulated</span></td><td>Constructed for case study realism</td></tr>
+          <tr><td>New vs existing user TSR gap</td><td>87.3% vs 94.1%</td><td><span class="pill b-amber">Simulated</span></td><td>Extrapolated from industry patterns</td></tr>
+          <tr><td>Failure reason breakdown</td><td>Network 38%, PIN 29%, Bank 21%, Other 12%</td><td><span class="pill b-amber">Simulated</span></td><td>Based on documented Tier 2 failure types</td></tr>
+          <tr><td>NPCI 30% market cap deadline</td><td>Extended to Dec 2026</td><td><span class="pill b-blue">Real</span></td><td>NPCI circular, Dec 2024</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="insight-box">
+      Portfolio note: Transparency about simulated vs real data is a strength, not a weakness. Real PMs work with imperfect data constantly. Showing that you know the difference — and can build a rigorous analysis anyway — is the signal recruiters look for.
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Built by Akash · PM Portfolio Project 2 · Data sources: NPCI, Business Standard, PhonePe, Inc42
+</div>
+
+<script>
+  function show(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById('s-' + id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function toggle(id, header) {
+    const body = document.getElementById(id);
+    const caret = header.querySelector('.caret');
+    body.classList.toggle('open');
+    caret.classList.toggle('open');
+  }
+
+  const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+  const gridC = dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)';
+  const textC = dark ? '#a8a69e' : '#73726c';
+
+  new Chart(document.getElementById('c1'), {
+    type: 'doughnut',
+    data: {
+      labels: ['PhonePe', 'Google Pay', 'Paytm', 'Others'],
+      datasets: [{ data: [47.6, 36.5, 6.9, 9], backgroundColor: ['#4A6FBF','#6BA08A','#B87333','#888780'], borderWidth: 0 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+  });
+
+  new Chart(document.getElementById('c2'), {
+    type: 'line',
+    data: {
+      labels: ['Aug','Sep','Oct','Diwali','Nov','Dec'],
+      datasets: [
+        { label: 'TSR %', data: [98.9,99.1,99.2,91.3,94.1,96.4], borderColor: '#4A6FBF', backgroundColor: 'rgba(74,111,191,0.08)', tension: 0.3, pointRadius: 4, pointBackgroundColor: '#4A6FBF', borderWidth: 2 },
+        { label: 'Diwali', data: [null,null,null,91.3,null,null], pointRadius: 8, pointBackgroundColor: '#C08040', showLine: false }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        y: { min: 88, max: 100, grid: { color: gridC }, ticks: { color: textC, font: { size: 11 }, callback: v => v + '%' } },
+        x: { grid: { color: gridC }, ticks: { color: textC, font: { size: 11 } } }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+
+  new Chart(document.getElementById('c3'), {
+    type: 'doughnut',
+    data: {
+      labels: ['P2P 41%', 'Merchant 45%', 'Bills 14%'],
+      datasets: [{ data: [41,45,14], backgroundColor: ['#4A6FBF','#6BA08A','#B87333'], borderWidth: 0 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+  });
+
+  new Chart(document.getElementById('c4'), {
+    type: 'bar',
+    data: {
+      labels: ['Network timeout','Wrong PIN','Bank server','Other'],
+      datasets: [{ data: [38,29,21,12], backgroundColor: ['#C05840','#B87333','#B87333','#888780'], borderRadius: 4 }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      scales: {
+        x: { grid: { color: gridC }, ticks: { color: textC, font: { size: 11 }, callback: v => v + '%' } },
+        y: { grid: { display: false }, ticks: { color: textC, font: { size: 11 } } }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+
+  new Chart(document.getElementById('c5'), {
+    type: 'bubble',
+    data: {
+      datasets: [
+        { label: 'H1 Network', data: [{ x: 3.5, y: 8.5, r: 18 }], backgroundColor: 'rgba(192,88,64,0.7)' },
+        { label: 'H2 New user UX', data: [{ x: 8, y: 9, r: 22 }], backgroundColor: 'rgba(74,111,191,0.7)' },
+        { label: 'H3 Bank load', data: [{ x: 4, y: 7, r: 14 }], backgroundColor: 'rgba(184,115,51,0.7)' },
+        { label: 'H4 Competitive', data: [{ x: 6, y: 4, r: 10 }], backgroundColor: 'rgba(136,135,128,0.6)' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        x: { min: 0, max: 11, title: { display: true, text: 'Ease of fix →', color: textC, font: { size: 11 } }, grid: { color: gridC }, ticks: { color: textC, font: { size: 11 } } },
+        y: { min: 0, max: 11, title: { display: true, text: 'Likelihood of being root cause →', color: textC, font: { size: 11 } }, grid: { color: gridC }, ticks: { color: textC, font: { size: 11 } } }
+      },
+      plugins: {
+        legend: { display: true, position: 'bottom', labels: { color: textC, font: { size: 11 }, boxWidth: 10 } },
+        tooltip: { callbacks: { label: ctx => ctx.dataset.label } }
+      },
+      layout: { padding: 20 }
+    }
+  });
+</script>
+</body>
+</html>
