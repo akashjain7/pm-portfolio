@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Orthians Polycraft — 0→1 Case Study | Akash</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --ink: #1a1612;
+      --ink2: #5c5449;
+      --ink3: #9e9488;
+      --cream: #f7f3ee;
+      --cream2: #ede8e0;
+      --cream3: #e2dbd0;
+      --gold: #b8924a;
+      --gold-light: #f0e2c8;
+      --red: #c0392b;
+      --green: #2d6a4f;
+      --radius: 6px;
+      --radius-lg: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    /* HERO */
+    .hero {
+      background: var(--ink);
+      color: var(--cream);
+      padding: 64px 40px 56px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 320px; height: 320px;
+      border-radius: 50%;
+      border: 1px solid rgba(184,146,74,0.2);
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -40px; left: 40px;
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      border: 1px solid rgba(184,146,74,0.12);
+    }
+    .hero-inner { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
+    .hero-tag {
+      display: inline-block; font-size: 11px; font-weight: 500;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: var(--gold); border: 1px solid rgba(184,146,74,0.4);
+      padding: 4px 12px; border-radius: 20px; margin-bottom: 24px;
+    }
+    .hero-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(32px, 5vw, 52px);
+      line-height: 1.1;
+      color: var(--cream);
+      margin-bottom: 16px;
+    }
+    .hero-title em { font-style: italic; color: var(--gold); }
+    .hero-sub {
+      font-size: 16px; color: rgba(247,243,238,0.65);
+      max-width: 560px; margin-bottom: 32px; font-weight: 300;
+    }
+    .hero-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+    .hero-pill {
+      font-size: 12px; padding: 4px 12px;
+      background: rgba(247,243,238,0.08);
+      border: 1px solid rgba(247,243,238,0.15);
+      border-radius: 20px; color: rgba(247,243,238,0.7);
+    }
+
+    /* NAV */
+    .sticky-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--cream); border-bottom: 1px solid var(--cream3);
+      padding: 0 40px;
+    }
+    .nav-inner {
+      max-width: 860px; margin: 0 auto;
+      display: flex; gap: 0; overflow-x: auto;
+    }
+    .nav-inner::-webkit-scrollbar { display: none; }
+    .nav-btn {
+      padding: 14px 18px; font-size: 13px; font-weight: 400;
+      border: none; background: transparent; color: var(--ink3);
+      cursor: pointer; white-space: nowrap;
+      border-bottom: 2px solid transparent;
+      transition: all .15s; font-family: 'DM Sans', sans-serif;
+    }
+    .nav-btn:hover { color: var(--ink); }
+    .nav-btn.active { color: var(--gold); border-bottom-color: var(--gold); font-weight: 500; }
+
+    /* MAIN */
+    .main { max-width: 860px; margin: 0 auto; padding: 48px 40px 80px; }
+    @media (max-width: 600px) {
+      .hero { padding: 40px 20px; }
+      .sticky-nav { padding: 0 20px; }
+      .main { padding: 32px 20px 60px; }
+    }
+
+    .section { display: none; animation: fadeIn .2s ease; }
+    .section.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* TYPOGRAPHY */
+    .section-eyebrow {
+      font-size: 11px; font-weight: 500; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--gold); margin-bottom: 8px;
+    }
+    .section-heading {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px; color: var(--ink); margin-bottom: 24px; line-height: 1.2;
+    }
+    .prose { font-size: 15px; color: var(--ink2); line-height: 1.8; margin-bottom: 20px; }
+    .prose strong { color: var(--ink); font-weight: 500; }
+
+    /* DIVIDER */
+    .divider { height: 1px; background: var(--cream3); margin: 32px 0; }
+
+    /* CALLOUT */
+    .callout {
+      background: var(--gold-light);
+      border-left: 3px solid var(--gold);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 16px 20px; margin-bottom: 24px;
+      font-size: 14px; color: var(--ink); line-height: 1.7;
+    }
+    .callout strong { font-weight: 500; }
+
+    /* KPI ROW */
+    .kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 28px; }
+    @media (max-width: 560px) { .kpi-row { grid-template-columns: 1fr 1fr; } }
+    .kpi {
+      background: var(--cream2); border-radius: var(--radius-lg);
+      padding: 18px 16px; border: 1px solid var(--cream3);
+    }
+    .kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink3); margin-bottom: 6px; }
+    .kpi-val { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--ink); line-height: 1; margin-bottom: 4px; }
+    .kpi-sub { font-size: 11px; color: var(--ink3); }
+
+    /* TWO COL */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    @media (max-width: 560px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* CARD */
+    .card {
+      background: white; border: 1px solid var(--cream3);
+      border-radius: var(--radius-lg); padding: 20px;
+    }
+    .card-title { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 12px; }
+    .card-sub { font-size: 12px; color: var(--ink3); margin-bottom: 12px; }
+
+    /* COMPARISON TABLE */
+    .comp-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 24px; }
+    .comp-table th {
+      padding: 10px 14px; background: var(--ink); color: var(--cream);
+      font-weight: 500; font-size: 12px; text-align: left; letter-spacing: .03em;
+    }
+    .comp-table th:first-child { border-radius: var(--radius) 0 0 0; }
+    .comp-table th:last-child { border-radius: 0 var(--radius) 0 0; }
+    .comp-table td { padding: 10px 14px; border-bottom: 1px solid var(--cream3); color: var(--ink2); vertical-align: top; }
+    .comp-table tr:last-child td { border-bottom: none; }
+    .comp-table tr:hover td { background: var(--cream2); }
+    .comp-table .orth { color: var(--green); font-weight: 500; }
+    .comp-table .frido { color: var(--ink3); }
+
+    /* TAG */
+    .tag {
+      display: inline-block; font-size: 11px; padding: 2px 8px;
+      border-radius: 20px; font-weight: 500; margin-right: 4px; margin-bottom: 4px;
+    }
+    .tag-gold { background: var(--gold-light); color: #7a5c1e; }
+    .tag-green { background: #d8f3dc; color: #1b4332; }
+    .tag-red { background: #fde8e8; color: #7b1d1d; }
+    .tag-gray { background: var(--cream2); color: var(--ink3); }
+
+    /* TIMELINE */
+    .timeline { margin-bottom: 24px; }
+    .tl-item { display: flex; gap: 16px; margin-bottom: 20px; position: relative; }
+    .tl-item::before {
+      content: ''; position: absolute;
+      left: 15px; top: 32px; bottom: -20px; width: 1px;
+      background: var(--cream3);
+    }
+    .tl-item:last-child::before { display: none; }
+    .tl-dot {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--gold-light); border: 2px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 500; color: var(--gold);
+      flex-shrink: 0; margin-top: 2px;
+    }
+    .tl-content { flex: 1; }
+    .tl-title { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 4px; }
+    .tl-text { font-size: 13px; color: var(--ink2); line-height: 1.6; }
+
+    /* PERSONA */
+    .persona {
+      background: white; border: 1px solid var(--cream3);
+      border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px;
+    }
+    .persona-head { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+    .persona-avatar {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: var(--gold-light); display: flex; align-items: center;
+      justify-content: center; font-family: 'DM Serif Display', serif;
+      font-size: 18px; color: var(--gold); flex-shrink: 0;
+    }
+    .persona-name { font-size: 15px; font-weight: 500; color: var(--ink); }
+    .persona-desc { font-size: 12px; color: var(--ink3); }
+    .persona-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 480px) { .persona-grid { grid-template-columns: 1fr; } }
+    .persona-block { background: var(--cream2); border-radius: var(--radius); padding: 12px; }
+    .persona-block-title { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink3); margin-bottom: 6px; }
+    .persona-block-text { font-size: 12px; color: var(--ink2); line-height: 1.6; }
+
+    /* CHANNEL BARS */
+    .ch-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .ch-label { font-size: 13px; color: var(--ink2); min-width: 140px; }
+    .ch-track { flex: 1; height: 6px; background: var(--cream3); border-radius: 3px; overflow: hidden; }
+    .ch-fill { height: 100%; border-radius: 3px; background: var(--gold); }
+    .ch-val { font-size: 12px; font-weight: 500; color: var(--ink); min-width: 36px; text-align: right; }
+    .ch-phase { font-size: 10px; color: var(--ink3); min-width: 60px; text-align: right; }
+
+    /* LEARNING CARD */
+    .learning {
+      border-left: 3px solid var(--cream3);
+      padding: 4px 0 4px 20px; margin-bottom: 20px;
+      transition: border-color .2s;
+    }
+    .learning:hover { border-left-color: var(--gold); }
+    .learning-q { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 6px; }
+    .learning-a { font-size: 13px; color: var(--ink2); line-height: 1.7; }
+
+    /* METRIC TABLE */
+    .metric-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 24px; }
+    .metric-table th {
+      font-size: 11px; text-transform: uppercase; letter-spacing: .06em;
+      color: var(--ink3); padding: 8px 12px; border-bottom: 1px solid var(--cream3);
+      text-align: left; background: var(--cream2);
+    }
+    .metric-table td { padding: 10px 12px; border-bottom: 1px solid var(--cream3); color: var(--ink2); }
+    .metric-table tr:last-child td { border-bottom: none; }
+
+    /* FOOTER */
+    .page-footer {
+      text-align: center; padding: 40px 20px;
+      font-size: 12px; color: var(--ink3);
+      border-top: 1px solid var(--cream3);
+    }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">PM Portfolio · Project 3 of 5</div>
+    <h1 class="hero-title">Orthians Polycraft —<br/><em>A 0→1 Story</em></h1>
+    <p class="hero-sub">Co-founding a memory foam ergonomic accessories brand from scratch — market research, positioning, product strategy, GTM, and what I'd do differently.</p>
+    <div class="hero-pills">
+      <span class="hero-pill">Memory foam · Home accessories</span>
+      <span class="hero-pill">0→1 Product + GTM</span>
+      <span class="hero-pill">D2C · India</span>
+      <span class="hero-pill">Pre-launch · Discontinued</span>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="sticky-nav">
+  <div class="nav-inner">
+    <button class="nav-btn active" onclick="show('overview',this)">Overview</button>
+    <button class="nav-btn" onclick="show('market',this)">Market</button>
+    <button class="nav-btn" onclick="show('user',this)">User</button>
+    <button class="nav-btn" onclick="show('positioning',this)">Positioning</button>
+    <button class="nav-btn" onclick="show('gtm',this)">GTM</button>
+    <button class="nav-btn" onclick="show('metrics',this)">Metrics</button>
+    <button class="nav-btn" onclick="show('learnings',this)">Learnings</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- OVERVIEW -->
+  <div class="section active" id="s-overview">
+    <div class="section-eyebrow">The brief</div>
+    <h2 class="section-heading">What is Orthians Polycraft?</h2>
+
+    <p class="prose">Orthians Polycraft was a D2C memory foam ergonomic accessories brand I co-founded with a partner. The idea was simple: Indians spending long hours sitting — at desks, in cars, on couches — were developing chronic back, neck, and posture problems. The market had players, but no one was offering genuinely premium product quality at an accessible price point.</p>
+
+    <p class="prose">We planned to enter with a focused memory foam range — neck pillows, car back supports, lumbar cushions, and seat cushions — and expand into the full memory foam home accessories niche over time.</p>
+
+    <div class="callout">
+      <strong>Core thesis:</strong> Better product — premium memory foam density + superior fabric quality — at the same price as the market leader (Frido). Possible because we had in-house manufacturing, which Frido doesn't. The cost savings went into product quality, not margins.
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi">
+        <div class="kpi-label">Target segment</div>
+        <div class="kpi-val" style="font-size:20px">Tier 1</div>
+        <div class="kpi-sub">Urban India, age 20–35</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Go-to-market</div>
+        <div class="kpi-val" style="font-size:20px">100%</div>
+        <div class="kpi-sub">Online — D2C + marketplaces</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Primary competitor</div>
+        <div class="kpi-val" style="font-size:20px">Frido</div>
+        <div class="kpi-sub">Series A, ₹240Cr+ raised</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-eyebrow">What I owned</div>
+    <h2 class="section-heading" style="font-size:22px">My work at Orthians</h2>
+
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot">1</div>
+        <div class="tl-content">
+          <div class="tl-title">Market research + competitive analysis</div>
+          <div class="tl-text">Mapped the ergonomic accessories landscape — players, pricing, product gaps, and customer sentiment from reviews. Defined our positioning relative to Frido, Sleepsia, and Dr. Trust.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">2</div>
+        <div class="tl-content">
+          <div class="tl-title">Product positioning + pricing strategy</div>
+          <div class="tl-text">Defined the value proposition: same price as Frido, meaningfully better product. Decided on price anchoring at Frido's range (₹1,500–₹4,000) with superior specs — memory foam density, fabric quality, ergonomic design.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">3</div>
+        <div class="tl-content">
+          <div class="tl-title">Website strategy + build</div>
+          <div class="tl-text">Built the product website based on VOC research and competitor benchmarking. Designed for D2C conversion — product storytelling, trust signals, and SEO structure baked in from day one.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">4</div>
+        <div class="tl-content">
+          <div class="tl-title">Channel strategy + GTM plan</div>
+          <div class="tl-text">Defined the full launch playbook — Amazon and Flipkart for volume, our website for margin, quick commerce for impulse discovery. Allocated budget across paid, organic, and SEO.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">5</div>
+        <div class="tl-content">
+          <div class="tl-title">SEO content plan</div>
+          <div class="tl-text">Built a content strategy targeting high-intent keywords (back pain, ergonomic pillow, car neck support) to build organic acquisition and reduce paid channel dependency over time.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout" style="border-left-color: var(--ink3); background: var(--cream2);">
+      <strong>Status:</strong> Full pre-launch strategy completed. Product was not launched due to financial constraints — manufacturing capital couldn't be arranged in time. I exited the venture after this.
+    </div>
+  </div>
+
+  <!-- MARKET -->
+  <div class="section" id="s-market">
+    <div class="section-eyebrow">Market context</div>
+    <h2 class="section-heading">Why this market, why now</h2>
+
+    <p class="prose">The Indian ergonomic accessories market is at an early but fast-moving inflection point. Three tailwinds converged to make 2023–24 a compelling entry window.</p>
+
+    <div class="two-col" style="margin-bottom:28px">
+      <div class="card">
+        <div class="card-title">Tailwind 1 — Remote work + long sitting hours</div>
+        <div class="card-sub">Post-COVID, a large cohort of urban 20–35 year olds permanently shifted to hybrid or WFH setups. Hours spent sitting at desks jumped sharply. Back pain and neck pain went from a middle-age problem to a mainstream 25-year-old problem.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Tailwind 2 — D2C memory foam is proven in India</div>
+        <div class="card-sub">Frido validated the market — they've raised $28.9M and have a strong Amazon presence. The category has consumer trust. The question wasn't "will people buy this online" — it was "is there a better product they'd switch to."</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Tailwind 3 — Health awareness among Tier 1 youth</div>
+        <div class="card-sub">The 20–35 urban Indian cohort is the most health-aware generation in Indian history — tracking steps, buying ergonomic furniture, watching posture content. Memory foam accessories fit naturally into this lifestyle shift.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Market size signal</div>
+        <div class="card-sub">Global memory foam pillow market was valued at $2.87B in 2024, growing at 8% CAGR. India's ergonomic products space is a fast-growing subset of this, led by online-first D2C brands. Frido's $28.9M funding is the clearest local validation signal.</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-eyebrow">Competitive landscape</div>
+    <h2 class="section-heading" style="font-size:22px">Where Orthians sat vs the competition</h2>
+
+    <table class="comp-table">
+      <thead>
+        <tr>
+          <th>Brand</th>
+          <th>Manufacturing</th>
+          <th>Fabric quality</th>
+          <th>Price range</th>
+          <th>Positioning</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Orthians</strong></td>
+          <td class="orth">In-house ✓</td>
+          <td class="orth">Premium fabric</td>
+          <td class="orth">₹1,500–₹4,000</td>
+          <td class="orth">Best quality at Frido's price</td>
+        </tr>
+        <tr>
+          <td>Frido</td>
+          <td class="frido">Outsourced</td>
+          <td class="frido">Standard</td>
+          <td>₹1,500–₹4,000</td>
+          <td>Market leader, trust + brand</td>
+        </tr>
+        <tr>
+          <td>Sleepsia</td>
+          <td class="frido">Outsourced</td>
+          <td class="frido">Standard</td>
+          <td>₹800–₹2,500</td>
+          <td>Value / budget segment</td>
+        </tr>
+        <tr>
+          <td>Dr. Trust</td>
+          <td class="frido">Outsourced</td>
+          <td class="frido">Standard</td>
+          <td>₹1,200–₹3,500</td>
+          <td>Medical credibility angle</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <strong>The gap we were targeting:</strong> No one in this price band was competing on genuine product quality. Frido wins on brand and distribution. Sleepsia wins on price. Dr. Trust wins on perceived medical authority. Orthians' bet was that a buyer willing to spend ₹2,000 on a neck pillow would switch to a demonstrably better product at the same price — once they could feel the difference in fabric and foam density.
+    </div>
+  </div>
+
+  <!-- USER -->
+  <div class="section" id="s-user">
+    <div class="section-eyebrow">User research</div>
+    <h2 class="section-heading">Who we were building for</h2>
+
+    <p class="prose">Our research combined Amazon and Flipkart review mining, Reddit and Twitter conversations around back pain and WFH ergonomics, and direct conversations with potential buyers. Two primary personas emerged.</p>
+
+    <div class="persona">
+      <div class="persona-head">
+        <div class="persona-avatar">R</div>
+        <div>
+          <div class="persona-name">Rohan, 27 — Software engineer, Bangalore</div>
+          <div class="persona-desc">Works 9–10 hours/day at a desk. Started noticing neck stiffness 6 months ago.</div>
+        </div>
+      </div>
+      <div class="persona-grid">
+        <div class="persona-block">
+          <div class="persona-block-title">Problem</div>
+          <div class="persona-block-text">Chronic neck and lower back pain from long desk hours. Has tried cheap pillows that didn't last. Willing to spend ₹2,000–3,000 for something that actually works.</div>
+        </div>
+        <div class="persona-block">
+          <div class="persona-block-title">Decision trigger</div>
+          <div class="persona-block-text">A bad week of pain, or a colleague recommending a product. Researches on Amazon, checks reviews obsessively before buying. Cares about whether it'll actually last.</div>
+        </div>
+        <div class="persona-block">
+          <div class="persona-block-title">What he wants</div>
+          <div class="persona-block-text">Something that feels premium, actually helps posture, and looks decent on his desk. Not a medical-looking product — wants it to feel like a lifestyle upgrade.</div>
+        </div>
+        <div class="persona-block">
+          <div class="persona-block-title">Why Orthians fits</div>
+          <div class="persona-block-text">Premium fabric (visible quality signal), better foam density (functional difference), same price as what he's already considering spending on Frido.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="persona">
+      <div class="persona-head">
+        <div class="persona-avatar">P</div>
+        <div>
+          <div class="persona-name">Priya, 31 — Product manager, Delhi</div>
+          <div class="persona-desc">Drives 45 mins daily to office. Lower back pain has been worsening.</div>
+        </div>
+      </div>
+      <div class="persona-grid">
+        <div class="persona-block">
+          <div class="persona-block-title">Problem</div>
+          <div class="persona-block-text">Long commute + desk job = full-day back stress. Has bought a car seat cushion once, it flattened in 3 months. Frustrated with products that don't last.</div>
+        </div>
+        <div class="persona-block">
+          <div class="persona-block-title">Decision trigger</div>
+          <div class="persona-block-text">Searches "best car lumbar support India" or sees a targeted Instagram ad. Buys fast when the product looks premium and reviews are strong.</div>
+        </div>
+        <div class="persona-block">
+          <div class="persona-block-title">What she wants</div>
+          <div class="persona-block-text">Durability above all. Something that maintains shape after months of use. Premium feel matters — she'd gift this to her husband too if it looks good.</div>
+        </div>
+        <div class="persona-block">
+          <div class="persona-block-title">Why Orthians fits</div>
+          <div class="persona-block-text">Better foam density = better durability signal. Premium fabric = looks and feels expensive. The product story around "lasts longer because made better" is exactly her trigger.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-eyebrow">VOC synthesis</div>
+    <h2 class="section-heading" style="font-size:22px">What customers said about existing products</h2>
+
+    <p class="prose">Review mining across Amazon and Flipkart for Frido, Sleepsia, and Dr. Trust revealed consistent patterns in what buyers praised and what they complained about.</p>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title" style="color:var(--green)">What buyers praised</div>
+        <ul style="font-size:13px;color:var(--ink2);line-height:2;padding-left:16px">
+          <li>Immediate comfort on first use</li>
+          <li>Relief from neck / back pain within days</li>
+          <li>Easy to wash covers</li>
+          <li>Value for money at ₹1,500–2,000 range</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:var(--red)">What buyers complained about</div>
+        <ul style="font-size:13px;color:var(--ink2);line-height:2;padding-left:16px">
+          <li>Foam flattening within 3–6 months</li>
+          <li>Cover fabric feels cheap / rough</li>
+          <li>Car supports don't fit all seat types</li>
+          <li>Poor after-sales and return experience</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>The insight that shaped our product:</strong> Buyers weren't unhappy with the category — they were unhappy with how quickly products degraded. "Great for 2 months, then useless" was the recurring pattern. Better foam density (higher durability) and premium fabric (better feel over time) directly addressed the top two complaints. This wasn't guesswork — it was the product brief that came out of the VOC work.
+    </div>
+  </div>
+
+  <!-- POSITIONING -->
+  <div class="section" id="s-positioning">
+    <div class="section-eyebrow">Product strategy</div>
+    <h2 class="section-heading">Positioning and product decisions</h2>
+
+    <p class="prose">Every positioning decision we made flowed from a single strategic anchor: <strong>we had a structural cost advantage through in-house manufacturing</strong>. Most competitors outsourced production, which meant their cost-to-quality ratio was fixed. Ours wasn't. We could put the savings directly into better raw materials — higher-density memory foam and premium outer fabric — without raising prices.</p>
+
+    <div class="callout">
+      <strong>The positioning in one line:</strong> "The premium memory foam product you'd expect to pay more for — at exactly what you'd pay for Frido."
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-eyebrow">Product decisions</div>
+    <h2 class="section-heading" style="font-size:22px">What to launch first — and why</h2>
+
+    <p class="prose">We decided to launch with a focused set of three SKUs rather than the full range, to keep inventory risk low and allow us to build reviews and trust before expanding.</p>
+
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot">1</div>
+        <div class="tl-content">
+          <div class="tl-title">Neck / cervical pillow — Launch hero product</div>
+          <div class="tl-text">Highest search volume in the category. Clearest pain point. Easiest to demonstrate quality difference (foam density + fabric feel are immediately noticeable). Lower manufacturing complexity vs seat cushions. Entry price point of ₹1,800–2,200 — accessible but not cheap.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">2</div>
+        <div class="tl-content">
+          <div class="tl-title">Car lumbar support — Second SKU</div>
+          <div class="tl-text">Strong commuter use case. Underserved in terms of quality — most car supports in this range are too thin or lose shape quickly. High gifting potential (car accessories make sense as gifts). Slightly higher price point — ₹2,500–3,500.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">3</div>
+        <div class="tl-content">
+          <div class="tl-title">Seat / coccyx cushion — Third SKU</div>
+          <div class="tl-text">Strong WFH and office desk use case. Repeat purchase potential — people buy one for home, one for office. Works as a bundle with the neck pillow. ₹1,500–2,000 price point drives volume.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-eyebrow">Brand decisions</div>
+    <h2 class="section-heading" style="font-size:22px">How we wanted Orthians to feel</h2>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Visual identity direction</div>
+        <div style="font-size:13px;color:var(--ink2);line-height:1.7">Clean, warm, premium. Not clinical or medical-looking (that's Dr. Trust's lane). Not playful or youth-targeted (that's a budget brand signal). Think: the ergonomic equivalent of a premium stationery brand. Natural tones, confident typography, product photography that shows texture.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Tone of voice</div>
+        <div style="font-size:13px;color:var(--ink2);line-height:1.7">Knowledgeable but not preachy. Honest about what the product does. No vague claims like "scientifically designed" without specifics. Instead: "720g/m³ foam density — doesn't flatten after 3 months." Show the specs, let the product speak.</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Key brand rule:</strong> Every claim on the website had to be product-grounded — density numbers, fabric certifications, durability test results. This was the trust signal that would differentiate us from brands making generic "orthopedic expert designed" claims.
+    </div>
+  </div>
+
+  <!-- GTM -->
+  <div class="section" id="s-gtm">
+    <div class="section-eyebrow">Go-to-market</div>
+    <h2 class="section-heading">Channel strategy and launch plan</h2>
+
+    <p class="prose">We chose a fully online GTM for launch — zero offline retail. The rationale: lower fixed cost, faster feedback loops, and the memory foam accessories category already had proven D2C purchase behaviour (Frido does the majority of its volume on Amazon and its own site).</p>
+
+    <div class="section-eyebrow" style="margin-top:8px">Channel priority and budget allocation</div>
+
+    <div class="card" style="margin-bottom:24px">
+      <div style="margin-bottom:16px">
+        <div class="ch-row">
+          <div class="ch-label">Amazon / Flipkart</div>
+          <div class="ch-track"><div class="ch-fill" style="width:70%"></div></div>
+          <div class="ch-val">40%</div>
+          <div class="ch-phase">Phase 1</div>
+        </div>
+        <div style="font-size:12px;color:var(--ink3);margin-bottom:16px;padding-left:152px">Volume driver. Where buyers search first. Goal: build reviews fast. Accept lower margin here to fund growth.</div>
+
+        <div class="ch-row">
+          <div class="ch-label">D2C website</div>
+          <div class="ch-track"><div class="ch-fill" style="width:45%"></div></div>
+          <div class="ch-val">25%</div>
+          <div class="ch-phase">Phase 1</div>
+        </div>
+        <div style="font-size:12px;color:var(--ink3);margin-bottom:16px;padding-left:152px">Margin driver. No marketplace commission. SEO + paid traffic directed here. Brand storytelling lives here — specs, fabric story, founder note.</div>
+
+        <div class="ch-row">
+          <div class="ch-label">Instagram / Meta ads</div>
+          <div class="ch-track"><div class="ch-fill" style="width:55%"></div></div>
+          <div class="ch-val">20%</div>
+          <div class="ch-phase">Phase 1</div>
+        </div>
+        <div style="font-size:12px;color:var(--ink3);margin-bottom:16px;padding-left:152px">Awareness + retargeting. Target 25–35, Tier 1, interests: WFH, ergonomics, health. Creative: product texture close-ups, before/after posture content, founder story.</div>
+
+        <div class="ch-row">
+          <div class="ch-label">SEO / content</div>
+          <div class="ch-track"><div class="ch-fill" style="width:30%"></div></div>
+          <div class="ch-val">10%</div>
+          <div class="ch-phase">Phase 2</div>
+        </div>
+        <div style="font-size:12px;color:var(--ink3);margin-bottom:16px;padding-left:152px">Long-term organic moat. Target: "best neck pillow India", "ergonomic car support", "back pain WFH". Takes 4–6 months to kick in — invest early, harvest later.</div>
+
+        <div class="ch-row">
+          <div class="ch-label">Quick commerce</div>
+          <div class="ch-track"><div class="ch-fill" style="width:15%"></div></div>
+          <div class="ch-val">5%</div>
+          <div class="ch-phase">Phase 2</div>
+        </div>
+        <div style="font-size:12px;color:var(--ink3);padding-left:152px">Blinkit / Zepto for impulse and gifting moments. Lower priority at launch — list once we have product-market fit signals on Amazon.</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-eyebrow">Launch sequencing</div>
+    <h2 class="section-heading" style="font-size:22px">Phased GTM plan</h2>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Phase 1 — Weeks 1–8: Volume + reviews</div>
+        <ul style="font-size:13px;color:var(--ink2);line-height:1.9;padding-left:16px">
+          <li>List on Amazon + Flipkart</li>
+          <li>Run Meta ads to D2C site</li>
+          <li>Seed 50 units to micro-influencers (ergonomics, WFH niche)</li>
+          <li>Target 100 Amazon reviews in 60 days</li>
+          <li>Monitor return reasons closely</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title">Phase 2 — Weeks 9–20: Margin + organic</div>
+        <ul style="font-size:13px;color:var(--ink2);line-height:1.9;padding-left:16px">
+          <li>Shift ad spend toward D2C site as reviews build trust</li>
+          <li>SEO content starts ranking</li>
+          <li>Introduce bundle (neck pillow + seat cushion)</li>
+          <li>Test quick commerce listing</li>
+          <li>Expand SKU range based on Phase 1 feedback</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-eyebrow">Website strategy</div>
+    <h2 class="section-heading" style="font-size:22px">What I built and why</h2>
+
+    <p class="prose">The website was built to do three things: tell the product story, build trust, and convert. Every structural decision was made from VOC — what buyers said they needed to feel confident before spending ₹2,000+ on a pillow they couldn't touch in a store.</p>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Trust signals built in</div>
+        <ul style="font-size:13px;color:var(--ink2);line-height:1.9;padding-left:16px">
+          <li>Foam density specs on every product page</li>
+          <li>Fabric material and certification details</li>
+          <li>Comparison table vs generic foam products</li>
+          <li>30-day return policy — prominently placed</li>
+          <li>Founder note on the About page</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title">SEO structure</div>
+        <ul style="font-size:13px;color:var(--ink2);line-height:1.9;padding-left:16px">
+          <li>Blog targeting long-tail pain keywords</li>
+          <li>Category pages structured for "best X in India" queries</li>
+          <li>Product pages with schema markup for rich results</li>
+          <li>Internal linking between pain-point content + product pages</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- METRICS -->
+  <div class="section" id="s-metrics">
+    <div class="section-eyebrow">Success criteria</div>
+    <h2 class="section-heading">How we'd have measured success</h2>
+
+    <p class="prose">These were the metrics I defined before launch — what a successful first 6 months would look like, and the signals that would tell us our positioning thesis was working.</p>
+
+    <table class="metric-table">
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Target (Month 3)</th>
+          <th>Target (Month 6)</th>
+          <th>Why it matters</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Amazon rating</strong></td>
+          <td>≥ 4.2 stars</td>
+          <td>≥ 4.4 stars</td>
+          <td>Primary trust signal for new buyers. Below 4.0 kills conversion.</td>
+        </tr>
+        <tr>
+          <td><strong>Review volume</strong></td>
+          <td>50+ reviews</td>
+          <td>200+ reviews</td>
+          <td>Below 50, buyers don't trust the product. 200+ enables organic ranking.</td>
+        </tr>
+        <tr>
+          <td><strong>Return rate</strong></td>
+          <td>&lt; 8%</td>
+          <td>&lt; 6%</td>
+          <td>High returns signal product-market fit failure or size/fit mismatch.</td>
+        </tr>
+        <tr>
+          <td><strong>D2C site conversion</strong></td>
+          <td>1.5%</td>
+          <td>2.5%</td>
+          <td>Industry benchmark is 1–3%. Below 1% = trust or UX problem.</td>
+        </tr>
+        <tr>
+          <td><strong>Repeat purchase rate</strong></td>
+          <td>—</td>
+          <td>15%+</td>
+          <td>Validates durability claim — if product lasts, users don't need to rebuy quickly.</td>
+        </tr>
+        <tr>
+          <td><strong>Blended CAC</strong></td>
+          <td>≤ ₹400</td>
+          <td>≤ ₹300</td>
+          <td>With ASP of ₹2,000, CAC above ₹500 kills unit economics.</td>
+        </tr>
+        <tr>
+          <td><strong>Organic traffic share</strong></td>
+          <td>10%</td>
+          <td>25%</td>
+          <td>SEO investment should start reducing paid dependency by Month 4–5.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <strong>North star metric:</strong> Amazon rating × review volume. Both had to move together — high rating with low reviews is fragile, high reviews with declining rating means product-market fit is slipping. The combination was our real pulse check in the first 6 months.
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-eyebrow">Unit economics</div>
+    <h2 class="section-heading" style="font-size:22px">Why the model worked on paper</h2>
+
+    <div class="kpi-row">
+      <div class="kpi">
+        <div class="kpi-label">Average selling price</div>
+        <div class="kpi-val">₹2,000</div>
+        <div class="kpi-sub">Neck pillow, launch SKU</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Est. COGS (in-house mfg)</div>
+        <div class="kpi-val">₹550</div>
+        <div class="kpi-sub">Foam + fabric + packaging</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Gross margin</div>
+        <div class="kpi-val">~60%</div>
+        <div class="kpi-sub">Before CAC + marketplace fees</div>
+      </div>
+    </div>
+
+    <p class="prose">In-house manufacturing was the key lever. A typical D2C brand outsourcing the same product would likely be at 35–40% gross margin. Our 60% gave us room to invest aggressively in marketing in Phase 1 without going underwater on unit economics — or to cut price if we needed to compete more aggressively.</p>
+  </div>
+
+  <!-- LEARNINGS -->
+  <div class="section" id="s-learnings">
+    <div class="section-eyebrow">Honest reflection</div>
+    <h2 class="section-heading">What I learned — and what I'd do differently</h2>
+
+    <p class="prose">Orthians didn't launch. That's the reality. But the work was real, the thinking was real, and the reasons it didn't happen taught me more about what actually matters in a 0→1 build than any successful launch would have.</p>
+
+    <div class="divider"></div>
+
+    <div class="learning">
+      <div class="learning-q">Why it didn't launch</div>
+      <div class="learning-a">We had the strategy, the product vision, and the manufacturing backing. What we didn't have was the working capital to fund the first inventory run while simultaneously building the marketing flywheel. D2C requires cash — for inventory, for ads, for the time it takes reviews and SEO to compound. We underestimated how long the runway needed to be before the business could be self-sustaining.</div>
+    </div>
+
+    <div class="learning">
+      <div class="learning-q">What I'd do differently: validate before building</div>
+      <div class="learning-a">I'd spend the first 30 days selling manually — WhatsApp, Instagram DMs, local offices — before building a website or listing on Amazon. Even 20 paid sales with real feedback would have sharpened the product brief dramatically and de-risked the inventory decision. We jumped to infrastructure (website, GTM plan) before validating that people would actually pay for this product.</div>
+    </div>
+
+    <div class="learning">
+      <div class="learning-q">What I'd do differently: launch with one SKU, not three</div>
+      <div class="learning-a">The plan to launch three SKUs simultaneously was a capital and focus mistake. One product, done exceptionally well, would have been cheaper to inventory, easier to market, and faster to build reviews on. Spread across three SKUs, the review count per product would have been too thin to generate Amazon ranking momentum in the first 90 days.</div>
+    </div>
+
+    <div class="learning">
+      <div class="learning-q">What worked: the positioning thesis was real</div>
+      <div class="learning-a">The core bet — better product at the same price, enabled by in-house manufacturing — was genuinely differentiated. Frido's review sections are full of "good but flattens too fast" complaints. That's a real gap. The product strategy wasn't the problem. The business infrastructure around it was.</div>
+    </div>
+
+    <div class="learning">
+      <div class="learning-q">What this taught me about PM thinking</div>
+      <div class="learning-a">Strategy without a clear path to validation is just a document. The most important PM skill I took from this isn't market sizing or GTM planning — it's knowing the fastest, cheapest way to find out if you're wrong about your core assumption. We should have answered "will someone pay ₹2,000 for our product?" before we answered "how do we scale to 1,000 orders a month."</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-eyebrow">If I were to relaunch</div>
+    <h2 class="section-heading" style="font-size:22px">What the v2 plan would look like</h2>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Different: Start with services revenue</div>
+        <div style="font-size:13px;color:var(--ink2);line-height:1.7">Corporate wellness tie-ups — sell in bulk to companies setting up WFH kits for employees. B2B sales generate cash flow without marketplace dependency, and serve as proof of product quality for B2C launch.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Different: One SKU, one channel first</div>
+        <div style="font-size:13px;color:var(--ink2);line-height:1.7">Neck pillow only. Amazon only. Get to 100 reviews with ≥4.3 stars before spending a rupee on ads or building a website. Let the marketplace do the discovery work before investing in owned channels.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Same: The product quality bet</div>
+        <div style="font-size:13px;color:var(--ink2);line-height:1.7">Better foam density, better fabric, same price as Frido. This positioning is still right. The customer insight — "products flatten too fast" — hasn't changed. The manufacturing advantage is still real.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Same: Full-online GTM</div>
+        <div style="font-size:13px;color:var(--ink2);line-height:1.7">No offline retail for at least 18 months. The discovery and trust-building infrastructure of Amazon + Meta is the right environment for a new D2C brand in this category.</div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:24px">
+      <strong>The PM takeaway:</strong> The gap between a good strategy and a launched product is execution infrastructure — capital, sequencing, and validation. A PM's job is to compress the distance between "we think this will work" and "we know this works." I learned that lesson the hard way here, and it's shaped how I think about product prioritisation and de-risking ever since.
+    </div>
+  </div>
+
+</div>
+
+<div class="page-footer">
+  Built by Akash · PM Portfolio Project 3 of 5 · Orthians Polycraft — Pre-launch, 2023
+</div>
+
+<script>
+  function show(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('s-' + id).classList.add('active');
+    btn.classList.add('active');
+    window.scrollTo({ top: document.querySelector('.sticky-nav').offsetTop - 1, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
