@@ -202,13 +202,13 @@
 
 <div class="page-header">
   <div class="page-header-inner">
-    <div class="breadcrumb">PM Portfolio · Project 2 of 5</div>
+    <div class="breadcrumb">PM Portfolio · Project 2</div>
     <div class="page-title">PhonePe: Metrics Deep-Dive & Root Cause Analysis</div>
-    <div class="page-sub">Simulated scenario — Transaction success rate dip among Tier 2 users post-Diwali 2024</div>
+    <div class="page-sub">Simulated scenario: Transaction success rate dip among Tier 2 users post-Diwali 2024</div>
     <div class="page-meta">
       <span class="meta-pill">Product: PhonePe / UPI Payments</span>
       <span class="meta-pill">Type: RCA + Metrics dashboard</span>
-      <span class="meta-pill">Author: Akash</span>
+      <span class="meta-pill">Author: Akash Jain</span>
       <span class="meta-pill">Data: NPCI / Public sources</span>
     </div>
   </div>
@@ -287,14 +287,14 @@
     </div>
 
     <div class="insight-box">
-      Key observation: PhonePe derives ~56% of its volume from Tier 2/3 cities. A post-Diwali TSR dip in this segment is not just a UX issue — it directly threatens retention of its highest-growth user base, risking churn to Google Pay and Paytm.
+      Key observation: PhonePe derives ~56% of its volume from Tier 2/3 cities. A post-Diwali TSR dip in this segment is not just a UX issue. It directly threatens retention of its highest-growth user base, risking churn to Google Pay and Paytm.
     </div>
   </div>
 
   <!-- DIAGNOSIS -->
   <div class="section" id="s-diagnosis">
     <div class="insight-box">
-      PM framing: "Transaction success rate (TSR) among Tier 2 users dropped by ~8% in the week following Diwali 2024. I want to understand whether this is a product problem, an infrastructure problem, or an external problem — and which layer to fix first."
+      PM framing: "Transaction success rate (TSR) among Tier 2 users dropped by ~8% in the week following Diwali 2024. I want to understand whether this is a product problem, an infrastructure problem, or an external problem and which layer to fix first."
     </div>
 
     <div class="section-label" style="margin-top:4px">Diagnostic framework: issue tree</div>
@@ -365,7 +365,7 @@
           <div class="hypothesis">
             <div class="h-num">Why</div>
             <div>
-              <div class="h-text">Tier 2 cities have significantly weaker 4G/5G coverage than metro areas. During Diwali, network load spikes dramatically due to WhatsApp, video calls, and social media — UPI API calls get deprioritised or time out mid-transaction.</div>
+              <div class="h-text">Tier 2 cities have significantly weaker 4G/5G coverage than metro areas. During Diwali, network load spikes dramatically due to WhatsApp, video calls, and social media. UPI API calls get deprioritised or time out mid-transaction.</div>
               <div class="h-conf amber" style="margin-top:4px">Supporting data: NPCI acknowledged intermittent outages in March–April 2025 due to overloaded systems. Tier 2 connectivity challenges are well-documented.</div>
             </div>
           </div>
@@ -388,8 +388,8 @@
           <div class="hypothesis">
             <div class="h-num">Why</div>
             <div>
-              <div class="h-text">PhonePe ran aggressive Diwali acquisition campaigns in Tier 2, bringing in users who had never transacted before. These users frequently enter wrong PINs, misread QR codes, or panic and abandon mid-flow — all counted as failures.</div>
-              <div class="h-conf amber" style="margin-top:4px">Supporting data: New user TSR is 87.3% vs 94.1% for existing Tier 2 users in our segmentation — a 7-point gap that directly explains the aggregate dip.</div>
+              <div class="h-text">PhonePe ran aggressive Diwali acquisition campaigns in Tier 2, bringing in users who had never transacted before. These users frequently enter wrong PINs, misread QR codes, or panic and abandon mid-flow, all counted as failures.</div>
+              <div class="h-conf amber" style="margin-top:4px">Supporting data: New user TSR is 87.3% vs 94.1% for existing Tier 2 users in our segmentation, a 7-point gap that directly explains the aggregate dip.</div>
             </div>
           </div>
           <div class="hypothesis">
