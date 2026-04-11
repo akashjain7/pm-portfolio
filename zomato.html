@@ -768,34 +768,91 @@
 
       <!-- CARD ONLY -->
       <div class="wf-view" id="wf-card">
-        <div class="phones-row">
-          <div class="phone-wrap">
-            <div class="phone-label">Card variant — home screen</div>
-            <div class="phone">
-              <div class="phone-screen">
-                <div class="phone-status"><span class="status-time">9:41</span><span class="status-icons">▲ ● ■</span></div>
-                <div class="app-header"><div class="app-logo">zomato</div><div class="app-location">📍 Shakti Nagar, Delhi</div></div>
-                <div class="app-search"><span class="search-icon">🔍</span><span>Search for restaurants...</span></div>
-                <div class="reorder-card-ui">
-                  <div class="rc-emoji">🍗</div>
-                  <div class="rc-info"><div class="rc-name">Butter Chicken</div><div class="rc-rest">Punjabi Dhaba</div><div class="rc-price">₹280 · 25 mins</div></div>
-                  <div class="rc-btn">Reorder</div>
-                </div>
-                <div class="section-title-sm">Restaurants near you</div>
-                <div class="rest-list">
-                  <div class="rest-item"><div class="rest-img">🍕</div><div class="rest-info"><div class="rest-name">Pizza Palace</div><div class="rest-meta"><span class="rest-rating">4.2 ★</span> · 30 mins</div></div></div>
-                  <div class="rest-item"><div class="rest-img">🍜</div><div class="rest-info"><div class="rest-name">Noodle House</div><div class="rest-meta"><span class="rest-rating">4.0 ★</span> · 20 mins</div></div></div>
-                  <div class="rest-item"><div class="rest-img">🥗</div><div class="rest-info"><div class="rest-name">Fresh Bowls</div><div class="rest-meta"><span class="rest-rating">4.5 ★</span> · 35 mins</div></div></div>
-                </div>
-              </div>
+  <div class="phones-row">
+
+    <!-- WEEKDAY -->
+    <div class="phone-wrap">
+      <div class="phone-label">Weekday Lunch</div>
+      <div class="phone">
+        <div class="phone-screen">
+          <!-- SAME UI -->
+          <div class="phone-status"><span>9:41</span><span>▲ ● ■</span></div>
+          <div class="app-header"><div class="app-logo">zomato</div><div class="app-location">📍 Shakti Nagar</div></div>
+          <div class="app-search">Search...</div>
+
+          <div class="reorder-card-ui">
+            <div class="rc-emoji">🍗</div>
+            <div class="rc-info">
+              <div class="rc-name">Butter Chicken</div>
+              <div class="rc-rest">Punjabi Dhaba</div>
+              <div class="rc-price">₹280 · Lunch time</div>
             </div>
+            <div class="rc-btn">Reorder</div>
           </div>
         </div>
-        <div class="callout" style="max-width:480px;margin:0 auto">
-          <strong>Problem with this design:</strong> The card sits in the top zone where users' eyes don't naturally land. Repeat users scroll past search and jump to the restaurant list — the card gets ignored in the zone associated with search chrome, not action.
+      </div>
+    </div>
+
+    <!-- NIGHT -->
+    <div class="phone-wrap">
+      <div class="phone-label">Late Night</div>
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="phone-status"><span>9:41</span><span>▲ ● ■</span></div>
+          <div class="app-header"><div class="app-logo">zomato</div><div class="app-location">📍 Shakti Nagar</div></div>
+          <div class="app-search">Search...</div>
+
+          <div class="reorder-card-ui">
+            <div class="rc-emoji">🍔</div>
+            <div class="rc-info">
+              <div class="rc-name">Chicken Burger</div>
+              <div class="rc-rest">McDonald's</div>
+              <div class="rc-price">₹199 · Late night</div>
+            </div>
+            <div class="rc-btn">Reorder</div>
+          </div>
         </div>
       </div>
+    </div>
 
+    <!-- WEEKEND -->
+    <div class="phone-wrap">
+      <div class="phone-label">Weekend</div>
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="reorder-card-ui">
+            <div class="rc-emoji">🍕</div>
+            <div class="rc-info">
+              <div class="rc-name">Pepperoni Pizza</div>
+              <div class="rc-rest">Domino's</div>
+              <div class="rc-price">₹499 · Weekend dinner</div>
+            </div>
+            <div class="rc-btn">Reorder</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEW USER -->
+    <div class="phone-wrap">
+      <div class="phone-label">New User</div>
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="reorder-card-ui">
+            <div class="rc-emoji">🍚</div>
+            <div class="rc-info">
+              <div class="rc-name">Chicken Biryani</div>
+              <div class="rc-rest">Trending now</div>
+              <div class="rc-price">₹180</div>
+            </div>
+            <div class="rc-btn">Try now</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
       <!-- BOTTOM SHEET ONLY -->
       <div class="wf-view" id="wf-sheet">
         <div class="phones-row">
