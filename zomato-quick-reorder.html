@@ -235,10 +235,13 @@
     .wf-view.active { display: block; animation: fadeUp .2s ease; }
 
     /* ─── PHONE MOCKUP ─── */
-    .phones-row { */
-      display: flex; gap: 24px; justify-content: center;
-      flex-wrap: wrap; margin-bottom: 24px;
-    }
+    .phones-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  justify-items: center;
+  margin-bottom: 24px;
+}
 
     .phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; }
     .phone-label {
