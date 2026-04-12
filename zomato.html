@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Zomato Quick Reorder — PM Case Study | Akash Jain</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #faf8f5;
+      --bg2: #f2ede6;
+      --bg3: #e8e1d8;
+      --ink: #1c1c16;
+      --ink2: #5c5a50;
+      --ink3: #9c9a8e;
+      --white: #ffffff;
+      --zomato: #e23744;
+      --zomato-dim: rgba(226,55,68,0.08);
+      --zomato-border: rgba(226,55,68,0.2);
+      --green: #2d7a4f;
+      --green-dim: rgba(45,122,79,0.08);
+      --amber: #c07820;
+      --amber-dim: rgba(192,120,32,0.08);
+      --border: rgba(28,28,22,0.08);
+      --border2: rgba(28,28,22,0.14);
+      --radius: 8px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      background: var(--ink);
+      padding: 72px 48px 64px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: 'ZOMATO';
+      position: absolute;
+      right: -20px; bottom: -40px;
+      font-family: 'Fraunces', serif;
+      font-size: 180px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.03);
+      letter-spacing: -.04em;
+      pointer-events: none;
+      user-select: none;
+    }
+    .hero-inner { max-width: 920px; margin: 0 auto; position: relative; z-index: 1; }
+    .hero-breadcrumb {
+      font-size: 11px; font-weight: 500; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--zomato);
+      margin-bottom: 20px;
+    }
+    .hero-title {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(32px, 5vw, 58px);
+      font-weight: 400;
+      color: var(--white);
+      line-height: 1.1;
+      margin-bottom: 16px;
+      letter-spacing: -.02em;
+    }
+    .hero-title em { font-style: italic; color: var(--zomato); }
+    .hero-sub {
+      font-size: 16px; color: rgba(255,255,255,0.55);
+      max-width: 560px; margin-bottom: 36px;
+      font-weight: 300; line-height: 1.7;
+    }
+    .hero-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+    .hero-pill {
+      font-size: 12px; padding: 5px 14px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 20px; color: rgba(255,255,255,0.6);
+    }
+
+    /* ─── NAV ─── */
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(250,248,245,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 48px;
+    }
+    .nav-inner {
+      max-width: 920px; margin: 0 auto;
+      display: flex; overflow-x: auto;
+    }
+    .nav-inner::-webkit-scrollbar { display: none; }
+    .nav-btn {
+      padding: 14px 18px; font-size: 13px; font-weight: 400;
+      border: none; background: transparent; color: var(--ink3);
+      cursor: pointer; white-space: nowrap;
+      border-bottom: 2px solid transparent;
+      transition: all .15s; font-family: 'DM Sans', sans-serif;
+    }
+    .nav-btn:hover { color: var(--ink); }
+    .nav-btn.active { color: var(--zomato); border-bottom-color: var(--zomato); font-weight: 500; }
+
+    /* ─── MAIN ─── */
+    .main { max-width: 920px; margin: 0 auto; padding: 52px 48px 88px; }
+    @media (max-width: 640px) {
+      .hero { padding: 48px 24px; }
+      .nav { padding: 0 24px; }
+      .main { padding: 36px 24px 64px; }
+    }
+
+    .section { display: none; }
+    .section.active { display: block; animation: fadeUp .2s ease; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ─── TYPOGRAPHY ─── */
+    .eyebrow {
+      font-size: 11px; font-weight: 500; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--zomato); margin-bottom: 8px;
+    }
+    .heading {
+      font-family: 'Fraunces', serif;
+      font-size: 28px; font-weight: 400;
+      color: var(--ink); margin-bottom: 24px;
+      line-height: 1.2; letter-spacing: -.01em;
+    }
+    .subheading {
+      font-family: 'Fraunces', serif;
+      font-size: 20px; font-weight: 400;
+      color: var(--ink); margin-bottom: 14px;
+      margin-top: 8px;
+    }
+    .prose { font-size: 15px; color: var(--ink2); line-height: 1.8; margin-bottom: 20px; }
+    .prose strong { color: var(--ink); font-weight: 500; }
+    .divider { height: 1px; background: var(--border); margin: 36px 0; }
+
+    /* ─── CALLOUT ─── */
+    .callout {
+      background: var(--zomato-dim); border-left: 3px solid var(--zomato);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 16px 20px; margin-bottom: 24px;
+      font-size: 14px; color: var(--ink2); line-height: 1.7;
+    }
+    .callout strong { color: var(--ink); }
+    .callout-green { border-left-color: var(--green); background: var(--green-dim); }
+    .callout-amber { border-left-color: var(--amber); background: var(--amber-dim); }
+    .callout-neutral { border-left-color: var(--ink3); background: var(--bg2); }
+
+    /* ─── GRID ─── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+    @media (max-width: 580px) { .two-col, .three-col { grid-template-columns: 1fr; } }
+
+    /* ─── CARD ─── */
+    .card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 20px;
+    }
+    .card-title { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 10px; }
+    .card-body { font-size: 13px; color: var(--ink2); line-height: 1.7; }
+
+    /* ─── KPI ─── */
+    .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
+    @media (max-width: 600px) { .kpi-row { grid-template-columns: 1fr 1fr; } }
+    .kpi { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 16px; }
+    .kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink3); margin-bottom: 6px; }
+    .kpi-val { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 400; color: var(--ink); line-height: 1; margin-bottom: 4px; }
+    .kpi-sub { font-size: 11px; color: var(--ink3); }
+
+    /* ─── TABLE ─── */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 24px; overflow: hidden; border-radius: var(--radius-lg); border: 1px solid var(--border); }
+    .data-table th { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink3); padding: 10px 14px; border-bottom: 1px solid var(--border); text-align: left; background: var(--bg2); }
+    .data-table td { padding: 11px 14px; border-bottom: 1px solid var(--border); color: var(--ink2); vertical-align: top; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: var(--bg2); }
+
+    /* ─── TAG ─── */
+    .tag { display: inline-block; font-size: 11px; padding: 2px 9px; border-radius: 20px; margin-right: 4px; margin-bottom: 4px; font-weight: 500; }
+    .tag-red { background: var(--zomato-dim); color: var(--zomato); border: 1px solid var(--zomato-border); }
+    .tag-green { background: var(--green-dim); color: var(--green); }
+    .tag-amber { background: var(--amber-dim); color: var(--amber); }
+    .tag-gray { background: var(--bg2); color: var(--ink3); border: 1px solid var(--border); }
+
+    /* ─── SEGMENT ROW ─── */
+    .segment { display: flex; gap: 14px; margin-bottom: 16px; align-items: flex-start; }
+    .segment-icon {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--zomato-dim); border: 1px solid var(--zomato-border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; flex-shrink: 0; margin-top: 2px;
+    }
+    .segment-title { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 3px; }
+    .segment-text { font-size: 13px; color: var(--ink2); line-height: 1.6; }
+
+    /* ─── METRIC ROW ─── */
+    .metric-item { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .metric-bar-wrap { flex: 1; height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+    .metric-bar { height: 100%; border-radius: 3px; background: var(--zomato); }
+    .metric-label { font-size: 13px; color: var(--ink2); min-width: 160px; }
+    .metric-val { font-size: 13px; font-weight: 500; color: var(--ink); min-width: 80px; text-align: right; }
+
+    /* ─── WIREFRAME SECTION ─── */
+    .wireframe-toggle {
+      display: flex; gap: 8px; margin-bottom: 32px;
+      background: var(--bg2); border-radius: var(--radius-lg);
+      padding: 6px; width: fit-content;
+    }
+    .wf-btn {
+      padding: 8px 20px; border-radius: var(--radius);
+      border: none; cursor: pointer; font-size: 13px;
+      font-family: 'DM Sans', sans-serif; font-weight: 500;
+      background: transparent; color: var(--ink3);
+      transition: all .2s;
+    }
+    .wf-btn.active {
+      background: var(--white); color: var(--ink);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    .wireframe-views { position: relative; }
+    .wf-view { display: none; }
+    .wf-view.active { display: block; animation: fadeUp .2s ease; }
+
+    /* ─── PHONE MOCKUP ─── */
+    /* 2 phones per row, wraps to next row for states 3+4 */
+    .phones-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px 24px;
+      justify-items: center;
+      margin-bottom: 24px;
+    }
+
+    .phone-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .phone-label {
+      font-size: 12px; font-weight: 500; color: var(--ink3);
+      text-transform: uppercase; letter-spacing: .06em;
+      text-align: center;
+    }
+
+    .phone {
+      width: 220px;
+      background: #1c1c1e;
+      border-radius: 36px;
+      padding: 12px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.18), inset 0 0 0 1px rgba(255,255,255,0.06);
+      position: relative;
+    }
+    .phone-screen {
+      background: #f8f8f8;
+      border-radius: 26px;
+      overflow: hidden;
+      min-height: 420px;
+      position: relative;
+      display: flex; flex-direction: column;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    /* Status bar */
+    .phone-status {
+      background: #fff; padding: 10px 16px 4px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .status-time { font-size: 11px; font-weight: 600; color: #1c1c1e; }
+    .status-icons { font-size: 9px; color: #1c1c1e; letter-spacing: 1px; }
+
+    /* Zomato app UI */
+    .app-header {
+      background: #fff; padding: 8px 14px 10px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .app-location-row {
+      display: flex; align-items: center; gap: 4px;
+    }
+    .delivering-label { font-size: 9px; color: #888; }
+    .delivering-city { font-size: 11px; font-weight: 700; color: #1c1c1e; }
+    .chevron { font-size: 9px; color: #888; }
+
+    .app-search {
+      background: #f4f4f4; border-radius: 8px;
+      padding: 7px 10px; margin: 8px 14px;
+      font-size: 10px; color: #999; display: flex; align-items: center; gap: 5px;
+    }
+    .search-icon { font-size: 10px; }
+
+    /* Restaurant list */
+    .rest-list { padding: 0 14px; flex: 1; }
+    .rest-item {
+      display: flex; gap: 8px; align-items: center;
+      padding: 8px 0; border-bottom: 1px solid #f4f4f4;
+    }
+    .rest-img {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: #f0f0f0; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 16px;
+    }
+    .rest-info { flex: 1; }
+    .rest-name { font-size: 10px; font-weight: 600; color: #1c1c1e; }
+    .rest-meta { font-size: 9px; color: #888; margin-top: 1px; }
+    .rest-rating { color: #2d7a4f; font-weight: 600; }
+
+    .section-title-sm {
+      font-size: 11px; font-weight: 600; color: #1c1c1e;
+      padding: 8px 14px 4px; letter-spacing: -.1px;
+    }
+
+    /* Bottom sheet overlay */
+    .sheet-overlay {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: rgba(0,0,0,0.35);
+      top: 0;
+      z-index: 10;
+      display: flex; flex-direction: column; justify-content: flex-end;
+    }
+    .bottom-sheet {
+      background: var(--white);
+      border-radius: 20px 20px 26px 26px;
+      padding: 0 0 16px;
+      box-shadow: 0 -8px 32px rgba(0,0,0,0.12);
+    }
+    .sheet-handle {
+      width: 36px; height: 3px; background: #ddd;
+      border-radius: 2px; margin: 10px auto 14px;
+    }
+    .sheet-header {
+      padding: 0 14px 10px;
+      border-bottom: 1px solid #f4f4f4;
+      display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    .sheet-title { font-size: 11px; font-weight: 600; color: #1c1c1e; }
+    .sheet-reason { font-size: 9px; color: #888; margin-top: 2px; }
+    .sheet-close { font-size: 14px; color: #888; line-height: 1; cursor: pointer; }
+    .sheet-item {
+      padding: 10px 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .sheet-emoji { font-size: 22px; width: 40px; height: 40px; background: #fff5f5; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .sheet-info { flex: 1; }
+    .sheet-name { font-size: 11px; font-weight: 600; color: #1c1c1e; }
+    .sheet-rest { font-size: 9px; color: #888; margin-top: 1px; }
+    .sheet-price { font-size: 10px; color: #555; font-weight: 500; margin-top: 2px; }
+    .sheet-cta {
+      margin: 4px 14px 0;
+      background: var(--zomato); color: white;
+      border-radius: 10px; padding: 10px;
+      text-align: center; font-size: 11px; font-weight: 600;
+    }
+    .sheet-opt {
+      text-align: center; font-size: 9px; color: #999; margin-top: 8px;
+    }
+
+    /* ─── TRADEOFF COMPARE ─── */
+    .tradeoff-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+      border: 1px solid var(--border); border-radius: var(--radius-lg);
+      overflow: hidden; margin-bottom: 24px;
+    }
+    .tradeoff-side { padding: 24px; }
+    .tradeoff-side:first-child { border-right: 1px solid var(--border); background: #fff5f5; }
+    .tradeoff-side:last-child { background: var(--green-dim); }
+    .tradeoff-verdict {
+      font-size: 11px; font-weight: 500; text-transform: uppercase;
+      letter-spacing: .08em; margin-bottom: 10px;
+    }
+    .tradeoff-title { font-size: 15px; font-weight: 500; color: var(--ink); margin-bottom: 12px; }
+    .tradeoff-body { font-size: 13px; color: var(--ink2); line-height: 1.7; }
+    .tradeoff-point { display: flex; gap: 8px; margin-bottom: 8px; font-size: 13px; color: var(--ink2); }
+    .tradeoff-point .dot { margin-top: 7px; width: 4px; height: 4px; border-radius: 50%; flex-shrink: 0; }
+    @media (max-width: 540px) { .tradeoff-grid { grid-template-columns: 1fr; } .tradeoff-side:first-child { border-right: none; border-bottom: 1px solid var(--border); } }
+
+    /* ─── ROLLOUT TIMELINE ─── */
+    .tl { margin-bottom: 24px; }
+    .tl-row { display: flex; gap: 16px; margin-bottom: 18px; }
+    .tl-dot {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--zomato-dim); border: 1.5px solid var(--zomato-border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 500; color: var(--zomato);
+      flex-shrink: 0; margin-top: 2px;
+    }
+    .tl-title { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 3px; }
+    .tl-text { font-size: 13px; color: var(--ink2); line-height: 1.6; }
+
+    /* ─── RISK TABLE ─── */
+    .risk-row { display: flex; gap: 12px; margin-bottom: 14px; padding: 14px; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+    .risk-left { flex: 1; }
+    .risk-name { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 3px; }
+    .risk-desc { font-size: 12px; color: var(--ink2); }
+    .risk-right { flex: 1; }
+    .risk-fix-label { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--green); font-weight: 500; margin-bottom: 3px; }
+    .risk-fix { font-size: 12px; color: var(--ink2); }
+
+    /* ─── FOOTER ─── */
+    .page-footer {
+      text-align: center; padding: 40px 20px;
+      font-size: 12px; color: var(--ink3);
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-breadcrumb">PM Portfolio · Project 1</div>
+    <h1 class="hero-title">Zomato <em>Quick Reorder</em></h1>
+    <p class="hero-sub">Reducing decision fatigue for repeat users through contextual, one-tap reordering, a full feature proposal from problem to rollout.</p>
+    <div class="hero-pills">
+      <span class="hero-pill">Consumer UX</span>
+      <span class="hero-pill">Feature Design</span>
+      <span class="hero-pill">Full PRD</span>
+      <span class="hero-pill">A/B Test Design</span>
+      <span class="hero-pill">Wireframes</span>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-inner">
+    <button class="nav-btn active" onclick="show('problem',this)">Problem</button>
+    <button class="nav-btn" onclick="show('research',this)">Research</button>
+    <button class="nav-btn" onclick="show('solution',this)">Solution</button>
+    <button class="nav-btn" onclick="show('wireframes',this)">Wireframes</button>
+    <button class="nav-btn" onclick="show('priority',this)">Prioritisation</button>
+    <button class="nav-btn" onclick="show('metrics',this)">Metrics</button>
+    <button class="nav-btn" onclick="show('risks',this)">Risks</button>
+    <button class="nav-btn" onclick="show('rollout',this)">Rollout</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- PROBLEM -->
+  <div class="section active" id="s-problem">
+    <div class="eyebrow">Problem statement</div>
+    <h2 class="heading">Repeat users are stuck in a discovery loop they didn't ask for</h2>
+
+    <p class="prose">Zomato's core loop — <strong>open app → browse → decide → order</strong> — breaks at the "decide" step for a significant portion of users. Users who already know what they want are forced through the same discovery flow designed for first-time exploration.</p>
+
+    <div class="callout">
+      <strong>Core hypothesis:</strong> ~40% of Zomato orders are repeats of a past order. These users spend an estimated 6–10 minutes re-navigating to the same restaurant and item they've ordered before, creating friction that directly suppresses order frequency and conversion rate.
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi">
+        <div class="kpi-label">Repeat order share</div>
+        <div class="kpi-val">~40%</div>
+        <div class="kpi-sub">Of all Zomato orders</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Re-navigation time</div>
+        <div class="kpi-val">6–10m</div>
+        <div class="kpi-sub">Avg. per repeat session</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Target time-to-order</div>
+        <div class="kpi-val">~3.5m</div>
+        <div class="kpi-sub">With Quick Reorder</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Daily repeat orders</div>
+        <div class="kpi-val">800K+</div>
+        <div class="kpi-sub">Affected sessions/day</div>
+      </div>
+    </div>
+
+    <div class="subheading">Why this matters for Zomato's business</div>
+    <p class="prose">Zomato's North Star is <strong>total successful orders per day</strong>. Every minute added to the decision-to-checkout flow increases drop-off probability. For a platform doing ~2M+ orders/day, even a 2% improvement in repeat-user conversion is material revenue.</p>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">This is NOT a discovery problem</div>
+        <div class="card-body">The existing recommendation engine and restaurant discovery feed work well for new exploration. Quick Reorder is a parallel track for users who already know what they want.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">This IS a recall + speed problem</div>
+        <div class="card-body">The current UI treats every session like the user's first visit. "Past Orders" exists but is buried 3 taps deep and shows full restaurant menus, not the specific items ordered.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESEARCH -->
+  <div class="section" id="s-research">
+    <div class="eyebrow">User research</div>
+    <h2 class="heading">Who is most affected and what they're saying</h2>
+
+    <p class="prose">Research based on App Store and Play Store review analysis, Reddit threads (r/india, r/zomato), and behavioural inference from product flows.</p>
+
+    <div class="subheading">Three primary segments</div>
+
+    <div class="segment">
+      <div class="segment-icon">💼</div>
+      <div>
+        <div class="segment-title">Working professionals: High frequency (daily)</div>
+        <div class="segment-text">Order lunch from the same 2–3 restaurants every weekday. Re-searching the same restaurant every time is the core pain point. Time is the constraint.</div>
+      </div>
+    </div>
+    <div class="segment">
+      <div class="segment-icon">🎓</div>
+      <div>
+        <div class="segment-title">Students: Medium frequency (3–4x/week)</div>
+        <div class="segment-text">Late-night repeat orders from nearby cheap options. Browsing through irrelevant restaurants at 11pm when they just want what they had yesterday.</div>
+      </div>
+    </div>
+    <div class="segment">
+      <div class="segment-icon">🏠</div>
+      <div>
+        <div class="segment-title">Families: Low-medium frequency (weekly)</div>
+        <div class="segment-text">Weekend biryani or pizza ritual orders. Long browse time due to menu size even when the decision is already made before opening the app.</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="subheading">Key insight from reviews</div>
+
+    <div class="callout">
+      The top complaint pattern in 1–2 star reviews is not food quality or delivery time, it's <strong>"I just wanted to reorder and it took forever to find it."</strong> The "Past Orders" section exists but is buried 3 taps deep and shows full restaurant menus, not the specific items ordered.
+    </div>
+
+    <div class="subheading">Opportunity sizing</div>
+    <p class="prose">If 35–40% of orders are repeats, and average repeat-user browsing time is 8 minutes vs. 3 minutes for a direct reorder, reducing that gap by 50% frees ~2.5 minutes per session. Across 800K repeat orders/day, this is a meaningful conversion and satisfaction lever.</p>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">What users want</div>
+        <div class="card-body">One tap to get back to what they had before. They're not looking for a recommendation; they're looking for recall. The decision is already made before they open the app.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">What the current product gives them</div>
+        <div class="card-body">A full discovery flow — search, filter, browse, select restaurant, navigate menu, find item, add to cart. At least 5–7 taps for something they've done a dozen times.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOLUTION -->
+  <div class="section" id="s-solution">
+    <div class="eyebrow">The feature</div>
+    <h2 class="heading">Quick Reorder — contextual, predictive, one-tap</h2>
+
+    <p class="prose">A contextual bottom sheet on the Zomato home screen that surfaces the user's most likely next order — specific dish + restaurant based on time of day, day of week, and order history. One tap adds to cart. Two taps place the order.</p>
+
+    <div class="callout callout-green">
+      <strong>What makes it different from "Order Again":</strong> It's predictive, not reactive. It surfaces before the user searches at the moment they open the app, based on when they usually order this. It's not a list of past orders. It's the one right answer for this moment.
+    </div>
+
+    <div class="subheading">How the prediction works</div>
+    <table class="data-table">
+      <thead>
+        <tr><th>Context</th><th>What Quick Reorder shows</th><th>Logic</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Weekday, 12–2pm</td><td>Butter Chicken + Naan from Punjabi Dhaba (₹280)</td><td>Most ordered item, weekday lunch window</td></tr>
+        <tr><td>Weekday, 9–11pm</td><td>Chicken Burger from McDonald's (₹180)</td><td>Late-night pattern, last 5 orders</td></tr>
+        <tr><td>Weekend, 7–9pm</td><td>Pepperoni Pizza from Domino's (₹499)</td><td>Weekend dinner pattern</td></tr>
+        <tr><td>New user (cold start)</td><td>Trending near you: Biryani from Apni Dukaan</td><td>Location-based trending, no order history</td></tr>
+      </tbody>
+    </table>
+
+    <div class="subheading">Frequency capping</div>
+    <p class="prose">The sheet does not appear on every session — which turns a helpful nudge into an annoyance. It shows a maximum of 3x per week per user, and only when prediction confidence is high (3+ orders in the same time window). Low-confidence sessions fall back to the standard home screen.</p>
+
+    <div class="subheading">Dismiss behaviour</div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Tap ✕ or overlay — session dismiss</div>
+        <div class="card-body">Closes the sheet for this session only. The user might want it tomorrow. No permanent signal sent to the model.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">"Don't show this again" — permanent opt-out</div>
+        <div class="card-body">Permanent dismiss. Feeds back to the prediction model as a negative signal. Respects long-term preference vs. short-term mood.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WIREFRAMES -->
+  <div class="section" id="s-wireframes">
+    <div class="eyebrow">Design</div>
+    <h2 class="heading">UI design and the tradeoff that shaped it</h2>
+
+    <p class="prose">The first design placed Quick Reorder as a card at the top of the home screen. After evaluating user attention patterns, we moved to a bottom sheet. Here's why — and both are shown below so you can judge the tradeoff yourself.</p>
+
+    <div class="wireframe-toggle">
+      <button class="wf-btn active" onclick="showWF('compare',this)">Side by side</button>
+      <button class="wf-btn" onclick="showWF('card',this)">Card only</button>
+      <button class="wf-btn" onclick="showWF('sheet',this)">Bottom sheet only</button>
+      <button class="wf-btn" onclick="showWF('states',this)">All states</button>
+    </div>
+
+    <div class="wireframe-views">
+
+      <!-- SIDE BY SIDE COMPARE -->
+      <div class="wf-view active" id="wf-compare">
+        <div style="display:flex;gap:40px;justify-content:center;flex-wrap:wrap;margin-bottom:28px;align-items:flex-start;">
+
+          <!-- CARD — rejected -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+            <div style="font-size:12px;font-weight:500;color:var(--zomato);text-transform:uppercase;letter-spacing:.06em;">❌ Card — Rejected</div>
+            <div style="width:220px;background:#1c1c1e;border-radius:36px;padding:12px;box-shadow:0 24px 60px rgba(0,0,0,0.18);">
+              <div style="background:#fff;border-radius:26px;overflow:hidden;height:440px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+                <div style="background:#fff;padding:10px 16px 4px;display:flex;justify-content:space-between;font-size:11px;font-weight:600;color:#111;"><span>9:41</span><span>●●●</span></div>
+                <div style="background:#fff;padding:6px 14px 8px;border-bottom:0.5px solid #eee;">
+                  <div style="font-size:9px;color:#888;">Delivering to</div>
+                  <div style="font-size:12px;font-weight:700;color:#111;">Pitampura, Delhi ▾</div>
+                </div>
+                <div style="margin:8px 12px;background:#f5f5f5;border-radius:8px;padding:8px 10px;font-size:11px;color:#aaa;">🔍 Search for restaurants...</div>
+                <div style="font-size:10px;font-weight:700;color:#888;padding:4px 12px;letter-spacing:.04em;text-transform:uppercase;">Quick reorder</div>
+                <div style="margin:0 12px 8px;background:#fff;border:1.5px solid #E23744;border-radius:12px;overflow:hidden;">
+                  <div style="background:#E23744;padding:5px 10px;display:flex;align-items:center;gap:6px;"><div style="font-size:10px;font-weight:700;color:#fff;">Ordered at this time last 4 days</div><div style="font-size:9px;color:rgba(255,255,255,.8);margin-left:auto;">12:30pm</div></div>
+                  <div style="padding:8px 10px;display:flex;align-items:center;gap:8px;"><div style="width:40px;height:40px;background:#FFF0E8;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🍛</div><div style="flex:1;"><div style="font-size:11px;font-weight:700;color:#111;">Butter Chicken + Naan</div><div style="font-size:9px;color:#666;margin-top:1px;">Punjabi Dhaba · 0.8 km</div><div style="font-size:9px;color:#888;">₹280 · 28 min</div></div><button style="background:#E23744;color:#fff;font-size:10px;font-weight:700;border:none;border-radius:6px;padding:6px 10px;flex-shrink:0;">Add</button></div>
+                </div>
+                <div style="font-size:10px;font-weight:700;color:#888;padding:4px 12px;letter-spacing:.04em;text-transform:uppercase;">Restaurants nearby</div>
+                <div style="margin:0 12px 5px;background:#fff;border:0.5px solid #eee;border-radius:8px;overflow:hidden;display:flex;"><div style="width:52px;height:52px;background:#f0f0f0;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;">🍕</div><div style="padding:6px 8px;flex:1;"><div style="font-size:10px;font-weight:600;color:#111;">Domino's Pizza</div><div style="font-size:9px;color:#888;">4.1 ★ · 35 min · ₹200 min</div></div></div>
+                <div style="margin:0 12px 5px;background:#fff;border:0.5px solid #eee;border-radius:8px;overflow:hidden;display:flex;"><div style="width:52px;height:52px;background:#f0f0f0;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;">🍔</div><div style="padding:6px 8px;flex:1;"><div style="font-size:10px;font-weight:600;color:#111;">McDonald's</div><div style="font-size:9px;color:#888;">4.3 ★ · 22 min · ₹150 min</div></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BOTTOM SHEET — chosen -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+            <div style="font-size:12px;font-weight:500;color:var(--green);text-transform:uppercase;letter-spacing:.06em;">✓ Bottom sheet — Chosen</div>
+            <div style="width:220px;background:#1c1c1e;border-radius:36px;padding:12px;box-shadow:0 24px 60px rgba(0,0,0,0.18);">
+              <div style="background:#fff;border-radius:26px;overflow:hidden;height:440px;position:relative;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+                <div style="background:#fff;padding:10px 16px 4px;display:flex;justify-content:space-between;font-size:11px;font-weight:600;color:#111;"><span>9:41</span><span>●●●</span></div>
+                <div style="background:#fff;padding:6px 14px 8px;border-bottom:0.5px solid #eee;">
+                  <div style="font-size:9px;color:#888;">Delivering to</div>
+                  <div style="font-size:12px;font-weight:700;color:#111;">Pitampura, Delhi ▾</div>
+                </div>
+                <div style="margin:8px 12px;background:#f5f5f5;border-radius:8px;padding:8px 10px;font-size:11px;color:#aaa;">🔍 Search for restaurants...</div>
+                <div style="font-size:10px;font-weight:700;color:#888;padding:4px 12px;letter-spacing:.04em;text-transform:uppercase;">Restaurants nearby</div>
+                <div style="margin:0 12px 5px;background:#fff;border:0.5px solid #eee;border-radius:8px;overflow:hidden;display:flex;"><div style="width:52px;height:52px;background:#f0f0f0;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;">🍕</div><div style="padding:6px 8px;flex:1;"><div style="font-size:10px;font-weight:600;color:#111;">Domino's Pizza</div><div style="font-size:9px;color:#888;">4.1 ★ · 35 min · ₹200 min</div></div></div>
+                <div style="margin:0 12px 5px;background:#fff;border:0.5px solid #eee;border-radius:8px;overflow:hidden;display:flex;"><div style="width:52px;height:52px;background:#f0f0f0;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;">🍔</div><div style="padding:6px 8px;flex:1;"><div style="font-size:10px;font-weight:600;color:#111;">McDonald's</div><div style="font-size:9px;color:#888;">4.3 ★ · 22 min · ₹150 min</div></div></div>
+                <!-- Sheet -->
+                <div style="position:absolute;bottom:0;left:0;right:0;top:0;background:rgba(0,0,0,0.35);">
+                  <div style="position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:16px 16px 26px 26px;padding:0 0 40px;">
+                    <div style="width:36px;height:4px;background:#ddd;border-radius:2px;margin:10px auto 12px;"></div>
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:0 14px 10px;border-bottom:0.5px solid #f0f0f0;"><div><div style="font-size:9px;color:#E23744;font-weight:600;margin-bottom:2px;">Ordered at this time · 4 days in a row</div><div style="font-size:13px;font-weight:700;color:#111;">Order it again?</div><div style="font-size:10px;color:#666;margin-top:1px;">Punjabi Dhaba · 0.8 km away</div></div><button style="width:22px;height:22px;background:#f5f5f5;border-radius:50%;border:none;font-size:12px;color:#888;">✕</button></div>
+                    <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;"><div style="width:50px;height:50px;background:#FFF0E8;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🍛</div><div><div style="font-size:13px;font-weight:700;color:#111;margin-bottom:2px;">Butter Chicken + Naan</div><div style="font-size:11px;color:#666;margin-bottom:2px;">Punjabi Dhaba</div><div style="font-size:11px;color:#888;">₹280 · 28 min delivery</div></div></div>
+                    <button style="margin:4px 14px 0;background:#E23744;color:#fff;font-size:13px;font-weight:700;border:none;border-radius:8px;padding:11px;width:calc(100% - 28px);cursor:pointer;">Add to cart</button>
+                    <div style="text-align:center;font-size:10px;color:#aaa;margin-top:8px;">Don't show this again</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TRADEOFF -->
+        <div class="tradeoff-grid">
+          <div class="tradeoff-side">
+            <div class="tradeoff-verdict" style="color:var(--zomato)">❌ Card — why it was rejected</div>
+            <div class="tradeoff-title">Top of screen, below search bar</div>
+            <div class="tradeoff-point"><div class="dot" style="background:var(--zomato)"></div><div>Repeat users' eyes land mid-screen on the restaurant list — the top zone is visually skipped</div></div>
+            <div class="tradeoff-point"><div class="dot" style="background:var(--zomato)"></div><div>Top zone is associated with search and location chrome, not action</div></div>
+            <div class="tradeoff-point"><div class="dot" style="background:var(--zomato)"></div><div>Card competes with search bar for attention in the wrong zone</div></div>
+            <div class="tradeoff-point"><div class="dot" style="background:var(--zomato)"></div><div>Feels like a banner — users have trained themselves to ignore top-of-screen banners</div></div>
+          </div>
+          <div class="tradeoff-side">
+            <div class="tradeoff-verdict" style="color:var(--green)">✓ Bottom sheet — why it was chosen</div>
+            <div class="tradeoff-title">Appears where attention already is</div>
+            <div class="tradeoff-point"><div class="dot" style="background:var(--green)"></div><div>User attention is naturally on the lower half while scanning the restaurant list</div></div>
+            <div class="tradeoff-point"><div class="dot" style="background:var(--green)"></div><div>Mirrors Zomato's existing pattern for offers and collabs — familiar interaction model</div></div>
+            <div class="tradeoff-point"><div class="dot" style="background:var(--green)"></div><div>Feels responsive and contextual, not intrusive — appears at the right moment</div></div>
+            <div class="tradeoff-point"><div class="dot" style="background:var(--green)"></div><div>Two distinct exit options respect short-term mood vs. long-term preference</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD ONLY (interactive) -->
+      <div class="wf-view" id="wf-card">
+        <style>
+          .cst-btn { font-size: 12px; padding: 5px 14px; border-radius: 20px; border: 1px solid #ddd; background: #fff; color: #666; cursor: pointer; font-family: inherit; }
+          .cst-btn.active { background: #E23744; color: #fff; border-color: #E23744; }
+        </style>
+        <div style="display:flex;gap:8px;justify-content:center;margin-bottom:20px;flex-wrap:wrap;">
+          <button class="cst-btn active" onclick="setCardState('lunch',this)">Weekday lunch</button>
+          <button class="cst-btn" onclick="setCardState('night',this)">Late night</button>
+          <button class="cst-btn" onclick="setCardState('weekend',this)">Weekend</button>
+          <button class="cst-btn" onclick="setCardState('new',this)">New user</button>
+        </div>
+        <div style="display:flex;justify-content:center;margin-bottom:20px;">
+          <div style="width:220px;background:#1c1c1e;border-radius:36px;padding:12px;box-shadow:0 24px 60px rgba(0,0,0,0.18);">
+            <div style="background:#fff;border-radius:26px;overflow:hidden;height:440px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+              <div style="background:#fff;padding:10px 16px 4px;display:flex;justify-content:space-between;font-size:11px;font-weight:600;color:#111;"><span>9:41</span><span>●●●</span></div>
+              <div style="background:#fff;padding:6px 14px 8px;border-bottom:0.5px solid #eee;">
+                <div style="font-size:9px;color:#888;">Delivering to</div>
+                <div style="font-size:12px;font-weight:700;color:#111;">Pitampura, Delhi ▾</div>
+              </div>
+              <div style="margin:8px 12px;background:#f5f5f5;border-radius:8px;padding:8px 10px;font-size:11px;color:#aaa;">🔍 Search for restaurants...</div>
+              <div id="card-section-lbl" style="font-size:10px;font-weight:700;color:#888;padding:4px 12px;letter-spacing:.04em;text-transform:uppercase;">Quick reorder</div>
+              <div style="margin:0 12px 8px;background:#fff;border:1.5px solid #E23744;border-radius:12px;overflow:hidden;">
+                <div style="background:#E23744;padding:5px 10px;display:flex;align-items:center;gap:6px;"><div id="card-header-lbl" style="font-size:10px;font-weight:700;color:#fff;">Ordered at this time last 4 days</div><div id="card-ctx" style="font-size:9px;color:rgba(255,255,255,.8);margin-left:auto;">12:30pm</div></div>
+                <div style="padding:8px 10px;display:flex;align-items:center;gap:8px;"><div id="card-img" style="width:40px;height:40px;background:#FFF0E8;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🍛</div><div style="flex:1;"><div id="card-dish" style="font-size:11px;font-weight:700;color:#111;">Butter Chicken + Naan</div><div id="card-rest" style="font-size:9px;color:#666;margin-top:1px;">Punjabi Dhaba · 0.8 km</div><div id="card-price" style="font-size:9px;color:#888;">₹280 · 28 min</div></div><button style="background:#E23744;color:#fff;font-size:10px;font-weight:700;border:none;border-radius:6px;padding:6px 10px;flex-shrink:0;">Add</button></div>
+              </div>
+              <div style="font-size:10px;font-weight:700;color:#888;padding:4px 12px;letter-spacing:.04em;text-transform:uppercase;">Restaurants nearby</div>
+              <div style="margin:0 12px 5px;background:#fff;border:0.5px solid #eee;border-radius:8px;overflow:hidden;display:flex;"><div style="width:52px;height:52px;background:#f0f0f0;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;">🍕</div><div style="padding:6px 8px;flex:1;"><div style="font-size:10px;font-weight:600;color:#111;">Domino's Pizza</div><div style="font-size:9px;color:#888;">4.1 ★ · 35 min</div></div></div>
+              <div style="margin:0 12px 5px;background:#fff;border:0.5px solid #eee;border-radius:8px;overflow:hidden;display:flex;"><div style="width:52px;height:52px;background:#f0f0f0;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;">🍔</div><div style="padding:6px 8px;flex:1;"><div style="font-size:10px;font-weight:600;color:#111;">McDonald's</div><div style="font-size:9px;color:#888;">4.3 ★ · 22 min</div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="callout" style="max-width:500px;margin:0 auto;">
+          <strong>Why this was rejected:</strong> The card sits in the top zone where users' eyes don't naturally land. Repeat users scroll past search and jump to the restaurant list — the card gets ignored in the zone associated with search chrome, not action.
+        </div>
+      </div>
+
+      <!-- BOTTOM SHEET ONLY (interactive) -->
+      <div class="wf-view" id="wf-sheet">
+        <style>
+          .sst-btn { font-size: 12px; padding: 5px 14px; border-radius: 20px; border: 1px solid #ddd; background: #fff; color: #666; cursor: pointer; font-family: inherit; }
+          .sst-btn.active { background: #E23744; color: #fff; border-color: #E23744; }
+          .s-overlay { position: absolute; bottom: 0; left: 0; right: 0; top: 0; background: rgba(0,0,0,0.35); transition: opacity .3s; }
+          .s-overlay.hidden { opacity: 0; pointer-events: none; }
+          .s-sheet { position: absolute; bottom: 0; left: 0; right: 0; background: #fff; border-radius: 16px 16px 26px 26px; padding: 0 0 40px; transition: transform .35s cubic-bezier(.32,.72,0,1); }
+          .s-sheet.hidden { transform: translateY(100%); }
+          .s-toast { position: absolute; bottom: 44px; left: 12px; right: 12px; background: #333; color: #fff; font-size: 12px; border-radius: 8px; padding: 10px 14px; text-align: center; z-index: 20; opacity: 0; transition: opacity .3s; pointer-events: none; }
+          .s-toast.show { opacity: 1; }
+        </style>
+        <div style="display:flex;gap:8px;justify-content:center;margin-bottom:20px;flex-wrap:wrap;">
+          <button class="sst-btn active" onclick="setSheetState('lunch',this)">Weekday lunch</button>
+          <button class="sst-btn" onclick="setSheetState('night',this)">Late night</button>
+          <button class="sst-btn" onclick="setSheetState('weekend',this)">Weekend</button>
+          <button class="sst-btn" onclick="setSheetState('new',this)">New user</button>
+        </div>
+        <div style="display:flex;gap:32px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;align-items:flex-start;">
+          <div style="display:flex;flex-direction:column;gap:14px;padding-top:180px;max-width:160px;">
+            <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:8px;height:8px;border-radius:50%;background:#E23744;flex-shrink:0;margin-top:4px;"></div><div style="font-size:13px;color:var(--ink2);line-height:1.5;"><strong style="color:var(--ink);font-weight:500;display:block;">Bottom sheet, not card</strong>Appears where eyes already are</div></div>
+            <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:8px;height:8px;border-radius:50%;background:#E23744;flex-shrink:0;margin-top:4px;"></div><div style="font-size:13px;color:var(--ink2);line-height:1.5;"><strong style="color:var(--ink);font-weight:500;display:block;">Reason shown upfront</strong>"4 days in a row" earns the interruption</div></div>
+          </div>
+          <!-- Phone -->
+          <div style="width:220px;background:#1c1c1e;border-radius:36px;padding:12px;box-shadow:0 24px 60px rgba(0,0,0,0.18);">
+            <div style="background:#fff;border-radius:26px;overflow:hidden;height:440px;position:relative;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+              <div style="background:#fff;padding:10px 16px 4px;display:flex;justify-content:space-between;font-size:11px;font-weight:600;color:#111;"><span>9:41</span><span>●●●</span></div>
+              <div style="background:#fff;padding:6px 14px 8px;border-bottom:0.5px solid #eee;">
+                <div style="font-size:9px;color:#888;">Delivering to</div>
+                <div style="font-size:12px;font-weight:700;color:#111;">Pitampura, Delhi ▾</div>
+              </div>
+              <div style="margin:8px 12px;background:#f5f5f5;border-radius:8px;padding:8px 10px;font-size:11px;color:#aaa;">🔍 Search for restaurants...</div>
+              <div style="font-size:10px;font-weight:700;color:#888;padding:4px 12px;letter-spacing:.04em;text-transform:uppercase;">Restaurants nearby</div>
+              <div style="margin:0 12px 5px;background:#fff;border:0.5px solid #eee;border-radius:8px;overflow:hidden;display:flex;"><div style="width:52px;height:52px;background:#f0f0f0;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;">🍕</div><div style="padding:6px 8px;flex:1;"><div style="font-size:10px;font-weight:600;color:#111;">Domino's Pizza</div><div style="font-size:9px;color:#888;">4.1 ★ · 35 min</div></div></div>
+              <div style="margin:0 12px 5px;background:#fff;border:0.5px solid #eee;border-radius:8px;overflow:hidden;display:flex;"><div style="width:52px;height:52px;background:#f0f0f0;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;">🍔</div><div style="padding:6px 8px;flex:1;"><div style="font-size:10px;font-weight:600;color:#111;">McDonald's</div><div style="font-size:9px;color:#888;">4.3 ★ · 22 min</div></div></div>
+              <div class="s-overlay" id="s-overlay" onclick="sDismiss()"></div>
+              <div class="s-sheet" id="s-sheet">
+                <div style="width:36px;height:4px;background:#ddd;border-radius:2px;margin:10px auto 12px;"></div>
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:0 14px 10px;border-bottom:0.5px solid #f0f0f0;">
+                  <div><div id="s-reason" style="font-size:9px;color:#E23744;font-weight:600;margin-bottom:2px;">Ordered at this time · 4 days in a row</div><div id="s-title" style="font-size:13px;font-weight:700;color:#111;">Order it again?</div><div id="s-sub" style="font-size:10px;color:#666;margin-top:1px;">Punjabi Dhaba · 0.8 km away</div></div>
+                  <button onclick="sDismiss()" style="width:22px;height:22px;background:#f5f5f5;border-radius:50%;border:none;font-size:12px;color:#888;cursor:pointer;">✕</button>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;">
+                  <div id="s-img" style="width:50px;height:50px;background:#FFF0E8;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🍛</div>
+                  <div><div id="s-dish" style="font-size:13px;font-weight:700;color:#111;margin-bottom:2px;">Butter Chicken + Naan</div><div id="s-rest" style="font-size:11px;color:#666;margin-bottom:2px;">Punjabi Dhaba</div><div id="s-price" style="font-size:11px;color:#888;">₹280 · 28 min delivery</div></div>
+                </div>
+                <button style="margin:4px 14px 0;background:#E23744;color:#fff;font-size:13px;font-weight:700;border:none;border-radius:8px;padding:11px;width:calc(100% - 28px);cursor:pointer;">Add to cart</button>
+                <div onclick="sDontShow()" style="text-align:center;font-size:10px;color:#aaa;margin-top:8px;cursor:pointer;">Don't show this again</div>
+              </div>
+              <div class="s-toast" id="s-toast">Got it — we won't suggest this again</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px;padding-top:260px;max-width:160px;">
+            <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:8px;height:8px;border-radius:50%;background:#888;flex-shrink:0;margin-top:4px;"></div><div style="font-size:13px;color:var(--ink2);line-height:1.5;"><strong style="color:var(--ink);font-weight:500;display:block;">Tap ✕ to dismiss</strong>Session-level exit only</div></div>
+            <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:8px;height:8px;border-radius:50%;background:#888;flex-shrink:0;margin-top:4px;"></div><div style="font-size:13px;color:var(--ink2);line-height:1.5;"><strong style="color:var(--ink);font-weight:500;display:block;">"Don't show again"</strong>Permanent opt-out signal</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ALL STATES — 2x2 grid, consistent phone style -->
+      <div class="wf-view" id="wf-states">
+        <div class="phones-row">
+
+          <!-- STATE 1 -->
+          <div class="phone-wrap">
+            <div class="phone-label">State 1 — Sheet appears</div>
+            <div class="phone">
+              <div class="phone-screen">
+                <div class="phone-status"><span class="status-time">9:41</span><span class="status-icons">●●● WiFi</span></div>
+                <div class="app-header">
+                  <div class="app-location-row">
+                    <div>
+                      <div class="delivering-label">Delivering to</div>
+                      <div class="delivering-city">Pitampura, Delhi ▾</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="app-search"><span class="search-icon">🔍</span><span>Search for restaurants or dishes...</span></div>
+                <div class="section-title-sm">RESTAURANTS NEARBY</div>
+                <div class="rest-list">
+                  <div class="rest-item"><div class="rest-img">🍕</div><div class="rest-info"><div class="rest-name">Domino's Pizza</div><div class="rest-meta"><span class="rest-rating">4.1 ★</span> · 35 min · ₹200 min</div></div></div>
+                  <div class="rest-item"><div class="rest-img">🍔</div><div class="rest-info"><div class="rest-name">McDonald's</div><div class="rest-meta"><span class="rest-rating">4.3 ★</span> · 22 min · ₹150 min</div></div></div>
+                </div>
+                <div class="sheet-overlay">
+                  <div class="bottom-sheet">
+                    <div class="sheet-handle"></div>
+                    <div class="sheet-header">
+                      <div><div class="sheet-title">Order it again?</div><div class="sheet-reason">Ordered at this time · 4 days in a row</div></div>
+                      <div class="sheet-close">✕</div>
+                    </div>
+                    <div class="sheet-item"><div class="sheet-emoji">🍗</div><div class="sheet-info"><div class="sheet-name">Butter Chicken + Naan</div><div class="sheet-rest">Punjabi Dhaba · 25 mins</div><div class="sheet-price">₹280</div></div></div>
+                    <div class="sheet-cta">Add to cart — ₹280</div>
+                    <div class="sheet-opt">Don't show this again</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STATE 2 -->
+          <div class="phone-wrap">
+            <div class="phone-label">State 2 — Added to cart</div>
+            <div class="phone">
+              <div class="phone-screen">
+                <div class="phone-status"><span class="status-time">9:41</span><span class="status-icons">●●● WiFi</span></div>
+                <div class="app-header">
+                  <div class="app-location-row">
+                    <div>
+                      <div class="delivering-label">Delivering to</div>
+                      <div class="delivering-city">Pitampura, Delhi ▾</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="app-search"><span class="search-icon">🔍</span><span>Search for restaurants or dishes...</span></div>
+                <div class="section-title-sm">RESTAURANTS NEARBY</div>
+                <div class="rest-list">
+                  <div class="rest-item"><div class="rest-img">🍕</div><div class="rest-info"><div class="rest-name">Domino's Pizza</div><div class="rest-meta"><span class="rest-rating">4.1 ★</span> · 35 min · ₹200 min</div></div></div>
+                  <div class="rest-item"><div class="rest-img">🍔</div><div class="rest-info"><div class="rest-name">McDonald's</div><div class="rest-meta"><span class="rest-rating">4.3 ★</span> · 22 min · ₹150 min</div></div></div>
+                </div>
+                <div class="sheet-overlay">
+                  <div class="bottom-sheet">
+                    <div class="sheet-handle"></div>
+                    <div style="padding:14px 14px 8px;text-align:center;">
+                      <div style="width:36px;height:36px;background:#2d7a4f;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:18px;color:#fff;">✓</div>
+                      <div style="font-size:12px;font-weight:600;color:#1c1c1e;">Added to cart!</div>
+                      <div style="font-size:10px;color:#888;margin-top:3px;">Butter Chicken + Naan · ₹280</div>
+                    </div>
+                    <div style="margin:4px 14px 8px;background:var(--zomato);color:white;border-radius:10px;padding:10px;text-align:center;font-size:11px;font-weight:600;">Go to checkout →</div>
+                    <div style="margin:0 14px;background:#fff;color:#1c1c1e;border:1px solid #eee;border-radius:10px;padding:9px;text-align:center;font-size:11px;font-weight:500;">Continue browsing</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STATE 3 -->
+          <div class="phone-wrap">
+            <div class="phone-label">State 3 — Dismissed</div>
+            <div class="phone">
+              <div class="phone-screen">
+                <div class="phone-status"><span class="status-time">9:41</span><span class="status-icons">●●● WiFi</span></div>
+                <div class="app-header">
+                  <div class="app-location-row">
+                    <div>
+                      <div class="delivering-label">Delivering to</div>
+                      <div class="delivering-city">Pitampura, Delhi ▾</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="app-search"><span class="search-icon">🔍</span><span>Search for restaurants or dishes...</span></div>
+                <div class="section-title-sm">RESTAURANTS NEARBY</div>
+                <div class="rest-list">
+                  <div class="rest-item"><div class="rest-img">🍕</div><div class="rest-info"><div class="rest-name">Domino's Pizza</div><div class="rest-meta"><span class="rest-rating">4.1 ★</span> · 35 min · ₹200 min</div></div></div>
+                  <div class="rest-item"><div class="rest-img">🍔</div><div class="rest-info"><div class="rest-name">McDonald's</div><div class="rest-meta"><span class="rest-rating">4.3 ★</span> · 22 min · ₹150 min</div></div></div>
+                  <div class="rest-item"><div class="rest-img">🥗</div><div class="rest-info"><div class="rest-name">SaladDays</div><div class="rest-meta"><span class="rest-rating">4.5 ★</span> · 28 min · ₹150 min</div></div></div>
+                  <div class="rest-item"><div class="rest-img">🍜</div><div class="rest-info"><div class="rest-name">Noodle House</div><div class="rest-meta"><span class="rest-rating">4.0 ★</span> · 32 min · ₹120 min</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STATE 4 -->
+          <div class="phone-wrap">
+            <div class="phone-label">State 4 — Cold start</div>
+            <div class="phone">
+              <div class="phone-screen">
+                <div class="phone-status"><span class="status-time">9:41</span><span class="status-icons">●●● WiFi</span></div>
+                <div class="app-header">
+                  <div class="app-location-row">
+                    <div>
+                      <div class="delivering-label">Delivering to</div>
+                      <div class="delivering-city">Pitampura, Delhi ▾</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="app-search"><span class="search-icon">🔍</span><span>Search for restaurants or dishes...</span></div>
+                <div class="section-title-sm">RESTAURANTS NEARBY</div>
+                <div class="rest-list">
+                  <div class="rest-item"><div class="rest-img">🍕</div><div class="rest-info"><div class="rest-name">Domino's Pizza</div><div class="rest-meta"><span class="rest-rating">4.1 ★</span> · 35 min · ₹200 min</div></div></div>
+                  <div class="rest-item"><div class="rest-img">🍔</div><div class="rest-info"><div class="rest-name">McDonald's</div><div class="rest-meta"><span class="rest-rating">4.3 ★</span> · 22 min · ₹150 min</div></div></div>
+                </div>
+                <div class="sheet-overlay">
+                  <div class="bottom-sheet">
+                    <div class="sheet-handle"></div>
+                    <div class="sheet-header">
+                      <div><div class="sheet-title">Trending near you</div><div class="sheet-reason">Popular right now · Lunch time</div></div>
+                      <div class="sheet-close">✕</div>
+                    </div>
+                    <div class="sheet-item"><div class="sheet-emoji">🍚</div><div class="sheet-info"><div class="sheet-name">Chicken Biryani</div><div class="sheet-rest">Apni Dukaan · 20 mins</div><div class="sheet-price">₹180</div></div></div>
+                    <div class="sheet-cta">Add to cart — ₹180</div>
+                    <div class="sheet-opt">Don't show this again</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PRIORITISATION -->
+  <div class="section" id="s-priority">
+    <div class="eyebrow">Prioritisation</div>
+    <h2 class="heading">RICE framework</h2>
+
+    <table class="data-table">
+      <thead><tr><th>Factor</th><th>Estimate</th><th>Reasoning</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Reach</strong></td><td>~8M users/month</td><td>Zomato has ~20M MAU. ~40% place repeat orders = ~8M users in active windows.</td></tr>
+        <tr><td><strong>Impact</strong></td><td>3 / 5</td><td>15–20% reduction in time-to-order; ~5–8% lift in repeat conversion. High-confidence incremental gain.</td></tr>
+        <tr><td><strong>Confidence</strong></td><td>80%</td><td>Amazon "Buy Again", Swiggy Instamart "Reorder" both show lift. Existing data. Low-complexity ML.</td></tr>
+        <tr><td><strong>Effort</strong></td><td>3 weeks (M)</td><td>Frontend: bottom sheet (~1w). Backend: time-based ranking model (~1.5w). A/B setup (~0.5w).</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-green">
+      <strong>RICE Score = (8,000,000 × 3 × 0.8) / 3 = ~6.4M</strong><br/>
+      High priority. Low risk. Uses existing data infrastructure. Targets the highest-frequency user cohort. No new data sources needed.
+    </div>
+  </div>
+
+  <!-- METRICS -->
+  <div class="section" id="s-metrics">
+    <div class="eyebrow">Success metrics</div>
+    <h2 class="heading">How we'd know if this is working</h2>
+
+    <div class="subheading">Primary metrics</div>
+    <div class="metric-item"><div class="metric-label">Time-to-order (repeat users)</div><div class="metric-bar-wrap"><div class="metric-bar" style="width:44%"></div></div><div class="metric-val">~3.5 min target</div></div>
+    <div class="metric-item"><div class="metric-label">Repeat conversion lift</div><div class="metric-bar-wrap"><div class="metric-bar" style="width:60%"></div></div><div class="metric-val">+5–8%</div></div>
+    <div class="metric-item"><div class="metric-label">Bottom sheet CTR</div><div class="metric-bar-wrap"><div class="metric-bar" style="width:50%"></div></div><div class="metric-val">&gt;25%</div></div>
+
+    <div class="divider"></div>
+
+    <div class="subheading">Secondary and guardrail metrics</div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Secondary: track improvement</div>
+        <div class="card-body">
+          <div style="margin-bottom:8px"><span class="tag tag-green">Track</span> Orders/user/month for repeat segment</div>
+          <div><span class="tag tag-green">Track</span> Session-to-order conversion rate</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Guardrail: must not regress</div>
+        <div class="card-body">
+          <div style="margin-bottom:8px"><span class="tag tag-amber">Guard</span> New restaurant discovery rate must not drop</div>
+          <div><span class="tag tag-amber">Guard</span> Permanent dismiss rate must stay below 30%</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="subheading">A/B test design</div>
+    <table class="data-table">
+      <thead><tr><th>Variable</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Control</strong></td><td>Current home screen, no Quick Reorder sheet</td></tr>
+        <tr><td><strong>Treatment</strong></td><td>Home screen with Quick Reorder bottom sheet for users with ≥3 past orders</td></tr>
+        <tr><td><strong>Split</strong></td><td>50/50 across users with ≥3 order history</td></tr>
+        <tr><td><strong>Duration</strong></td><td>2 weeks minimum captures weekly order patterns</td></tr>
+        <tr><td><strong>Significance threshold</strong></td><td>95% confidence before shipping to full rollout</td></tr>
+        <tr><td><strong>Primary metric</strong></td><td>Time-to-order for repeat users</td></tr>
+        <tr><td><strong>Guardrail</strong></td><td>New restaurant order rate must not decline</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- RISKS -->
+  <div class="section" id="s-risks">
+    <div class="eyebrow">Risk analysis</div>
+    <h2 class="heading">What could go wrong and how we'd handle it</h2>
+
+    <div class="risk-row">
+      <div class="risk-left"><div class="risk-name">Cold start problem</div><div class="risk-desc">New users (&lt;3 orders) see no sheet or an irrelevant suggestion</div></div>
+      <div class="risk-right"><div class="risk-fix-label">Mitigation</div><div class="risk-fix">Show trending/location-based suggestions for new users; don't show sheet at all for 0-order users</div></div>
+    </div>
+    <div class="risk-row">
+      <div class="risk-left"><div class="risk-name">Restaurant availability</div><div class="risk-desc">Suggested restaurant is closed or not delivering to user's current location</div></div>
+      <div class="risk-right"><div class="risk-fix-label">Mitigation</div><div class="risk-fix">Real-time availability check before rendering sheet; show next best candidate if unavailable</div></div>
+    </div>
+    <div class="risk-row">
+      <div class="risk-left"><div class="risk-name">Menu or price changes</div><div class="risk-desc">Item price changed since last order; user feels misled at checkout</div></div>
+      <div class="risk-right"><div class="risk-fix-label">Mitigation</div><div class="risk-fix">Always show live price on card, never cached. Flag if item is no longer available on menu</div></div>
+    </div>
+    <div class="risk-row">
+      <div class="risk-left"><div class="risk-name">Reduces exploration</div><div class="risk-desc">Users stop discovering new restaurants — hurts long-term retention and LTV</div></div>
+      <div class="risk-right"><div class="risk-fix-label">Mitigation</div><div class="risk-fix">Monitor new restaurant order rate as a guardrail metric; cap sheet to 3x/week max</div></div>
+    </div>
+    <div class="risk-row">
+      <div class="risk-left"><div class="risk-name">Low prediction accuracy</div><div class="risk-desc">Wrong suggestion shown → sheet feels useless → users dismiss permanently</div></div>
+      <div class="risk-right"><div class="risk-fix-label">Mitigation</div><div class="risk-fix">Require minimum 3 orders in same time window before predicting; track permanent dismiss rate as health metric</div></div>
+    </div>
+  </div>
+
+  <!-- ROLLOUT -->
+  <div class="section" id="s-rollout">
+    <div class="eyebrow">Rollout plan</div>
+    <h2 class="heading">Phased launch</h2>
+
+    <div class="tl">
+      <div class="tl-row">
+        <div class="tl-dot">α</div>
+        <div>
+          <div class="tl-title">Alpha — Weeks 1–2</div>
+          <div class="tl-text">Internal team + 1,000 power users (5+ orders/month). Goal: validate prediction accuracy, catch edge cases, gather qualitative feedback on the bottom sheet UX.</div>
+        </div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-dot">β</div>
+        <div>
+          <div class="tl-title">Beta A/B — Weeks 3–4</div>
+          <div class="tl-text">10% of users with ≥3 order history. Measure CTR, time-to-order delta, and repeat conversion lift. Only proceed to full rollout if metrics hit targets at 95% confidence.</div>
+        </div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-dot">1.0</div>
+        <div>
+          <div class="tl-title">Full rollout — Weeks 5–6</div>
+          <div class="tl-text">All users with ≥3 orders, if A/B metrics hit targets. Monitor guardrail metrics (discovery rate, dismiss rate) for 2 weeks post-launch before declaring success.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-green">
+      <strong>Expected outcome:</strong> If A/B test shows a 5% increase in repeat-user conversion, the potential revenue gain across 800K+ daily repeat sessions makes full investment in the feature worthwhile and opens the door to more advanced personalization (multi-item prediction, cuisine-level affinity, loyalty integration) in v2.
+    </div>
+  </div>
+
+</div>
+
+<div class="page-footer">
+  Built by Akash Jain · Zomato Quick Reorder Feature Proposal
+</div>
+
+<script>
+  function show(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('s-' + id).classList.add('active');
+    btn.classList.add('active');
+    window.scrollTo({ top: document.querySelector('.nav').offsetTop - 1, behavior: 'smooth' });
+  }
+
+  function showWF(id, btn) {
+    document.querySelectorAll('.wf-view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.wf-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('wf-' + id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  const cardStates = {
+    lunch:   { lbl:'Ordered at this time last 4 days', ctx:'12:30pm', img:'🍛', dish:'Butter Chicken + Naan', rest:'Punjabi Dhaba · 0.8 km', price:'₹280 · 28 min', section:'Quick reorder' },
+    night:   { lbl:'Your usual late-night order',      ctx:'11:15pm', img:'🍔', dish:'Chicken Burger Meal',   rest:"McDonald's · 1.2 km",    price:'₹199 · 20 min', section:'Quick reorder' },
+    weekend: { lbl:'Weekend dinner ritual',            ctx:'Sat 8pm', img:'🍕', dish:'Pepperoni Pizza (M)',   rest:"Domino's · 1.5 km",      price:'₹499 · 35 min', section:'Quick reorder' },
+    new:     { lbl:'Trending near you',                ctx:'New user',img:'🍚', dish:'Chicken Biryani',       rest:'Paradise Biryani · 0.5 km',price:'₹180 · 25 min', section:'Trending near you' }
+  };
+  function setCardState(key, btn) {
+    const s = cardStates[key];
+    document.getElementById('card-header-lbl').textContent = s.lbl;
+    document.getElementById('card-ctx').textContent = s.ctx;
+    document.getElementById('card-img').textContent = s.img;
+    document.getElementById('card-dish').textContent = s.dish;
+    document.getElementById('card-rest').textContent = s.rest;
+    document.getElementById('card-price').textContent = s.price;
+    document.getElementById('card-section-lbl').textContent = s.section;
+    document.querySelectorAll('.cst-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  const sheetStates = {
+    lunch:   { reason:'Ordered at this time · 4 days in a row', title:'Order it again?', sub:'Punjabi Dhaba · 0.8 km away', img:'🍛', dish:'Butter Chicken + Naan', rest:'Punjabi Dhaba', price:'₹280 · 28 min delivery' },
+    night:   { reason:'Your usual late-night order',            title:'Order it again?', sub:"McDonald's · 1.2 km away",    img:'🍔', dish:'Chicken Burger Meal',   rest:"McDonald's",           price:'₹199 · 20 min delivery' },
+    weekend: { reason:'Weekend dinner — ordered last 3 Sats',  title:'Order it again?', sub:"Domino's · 1.5 km away",      img:'🍕', dish:'Pepperoni Pizza (M)',   rest:"Domino's",             price:'₹499 · 35 min delivery' },
+    new:     { reason:'Trending in Pitampura right now',        title:'Popular near you', sub:'Paradise Biryani · 0.5 km', img:'🍚', dish:'Chicken Biryani',       rest:'Paradise Biryani',     price:'₹180 · 25 min delivery' }
+  };
+  function setSheetState(key, btn) {
+    const s = sheetStates[key];
+    document.getElementById('s-reason').textContent = s.reason;
+    document.getElementById('s-title').textContent = s.title;
+    document.getElementById('s-sub').textContent = s.sub;
+    document.getElementById('s-img').textContent = s.img;
+    document.getElementById('s-dish').textContent = s.dish;
+    document.getElementById('s-rest').textContent = s.rest;
+    document.getElementById('s-price').textContent = s.price;
+    document.querySelectorAll('.sst-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('s-sheet').classList.remove('hidden');
+    document.getElementById('s-overlay').classList.remove('hidden');
+  }
+  function sDismiss() {
+    document.getElementById('s-sheet').classList.add('hidden');
+    document.getElementById('s-overlay').classList.add('hidden');
+  }
+  function sDontShow() {
+    sDismiss();
+    const t = document.getElementById('s-toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+</script>
+</body>
+</html>
