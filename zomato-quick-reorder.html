@@ -263,6 +263,26 @@
       display: flex; flex-direction: column;
     }
 
+#wf-states .phones-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: center;
+}
+
+#wf-states .phone-wrap {
+  width: calc(50% - 24px); /* 2 per row */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  #wf-states .phone-wrap {
+    width: 100%; /* mobile pe 1 */
+  }
+}
+    
     /* Status bar */
     .phone-status {
       background: #f8f8f8; padding: 10px 16px 4px;
