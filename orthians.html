@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Orthians: Building a Product from Scratch</title>
+  <title>Orthians: Zero to Launch to Turnaround · Akash Jain</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
     :root {
@@ -21,7 +21,7 @@
     .hero-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--gold); border: 1px solid rgba(184,146,74,0.4); padding: 4px 12px; border-radius: 20px; margin-bottom: 24px; }
     .hero-title { font-family: 'DM Serif Display', serif; font-size: clamp(32px, 5vw, 52px); line-height: 1.1; color: var(--cream); margin-bottom: 16px; }
     .hero-title em { font-style: italic; color: var(--gold); }
-    .hero-sub { font-size: 16px; color: rgba(247,243,238,0.65); max-width: 560px; margin-bottom: 32px; font-weight: 300; }
+    .hero-sub { font-size: 16px; color: rgba(247,243,238,0.65); max-width: 600px; margin-bottom: 32px; font-weight: 300; }
     .hero-pills { display: flex; gap: 8px; flex-wrap: wrap; }
     .hero-pill { font-size: 12px; padding: 4px 12px; background: rgba(247,243,238,0.08); border: 1px solid rgba(247,243,238,0.15); border-radius: 20px; color: rgba(247,243,238,0.7); }
     .sticky-nav { position: sticky; top: 0; z-index: 100; background: var(--cream); border-bottom: 1px solid var(--cream3); padding: 0 40px; }
@@ -29,12 +29,14 @@
     .nav-inner::-webkit-scrollbar { display: none; }
     .nav-btn { padding: 14px 18px; font-size: 13px; font-weight: 400; border: none; background: transparent; color: var(--ink3); cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; transition: all .15s; font-family: 'DM Sans', sans-serif; }
     .nav-btn:hover { color: var(--ink); }
+    .nav-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
     .nav-btn.active { color: var(--gold); border-bottom-color: var(--gold); font-weight: 500; }
     .main { max-width: 860px; margin: 0 auto; padding: 48px 40px 80px; }
     @media (max-width: 600px) { .hero { padding: 40px 20px; } .sticky-nav { padding: 0 20px; } .main { padding: 32px 20px 60px; } }
     .section { display: none; animation: fadeIn .2s ease; }
     .section.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    @media (prefers-reduced-motion: reduce) { .section { animation: none; } }
     .section-eyebrow { font-size: 11px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
     .section-heading { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--ink); margin-bottom: 24px; line-height: 1.2; }
     .prose { font-size: 15px; color: var(--ink2); line-height: 1.8; margin-bottom: 20px; }
@@ -43,15 +45,12 @@
     .callout { background: var(--gold-light); border-left: 3px solid var(--gold); border-radius: 0 var(--radius) var(--radius) 0; padding: 16px 20px; margin-bottom: 24px; font-size: 14px; color: var(--ink); line-height: 1.7; }
     .callout strong { font-weight: 500; }
     .kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 28px; }
-    @media (max-width: 560px) { .kpi-row { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 560px) { .kpi-row { grid-template-columns: 1fr; } }
     .kpi { background: var(--cream2); border-radius: var(--radius-lg); padding: 18px 16px; border: 1px solid var(--cream3); }
     .kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink3); margin-bottom: 6px; }
     .kpi-val { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--ink); line-height: 1; margin-bottom: 4px; }
+    .kpi-val.good { color: var(--green); }
     .kpi-sub { font-size: 11px; color: var(--ink3); }
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-    @media (max-width: 560px) { .two-col { grid-template-columns: 1fr; } }
-    .card { background: white; border: 1px solid var(--cream3); border-radius: var(--radius-lg); padding: 20px; }
-    .card-title { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 12px; }
     .learning { border-left: 3px solid var(--cream3); padding: 4px 0 4px 20px; margin-bottom: 24px; transition: border-color .2s; }
     .learning:hover { border-left-color: var(--gold); }
     .learning-q { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 6px; }
@@ -68,6 +67,40 @@
     .comp-table tr:last-child td { border-bottom: none; }
     .comp-table .orth { color: var(--green); font-weight: 500; }
     .comp-table .neutral { color: var(--ink3); }
+    /* Value-curve timeline */
+    .timeline-card { background: white; border: 1px solid var(--cream3); border-radius: var(--radius-lg); padding: 24px 24px 18px; margin: 8px 0 28px; }
+    .timeline-title { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 6px; }
+    .timeline-sub { font-size: 12px; color: var(--ink3); margin-bottom: 36px; }
+    .track { position: relative; height: 8px; background: var(--cream2); border-radius: 4px; margin: 0 6px 52px; }
+    .value-band { position: absolute; left: 66.6%; width: 16.8%; top: 0; bottom: 0; background: var(--gold); border-radius: 4px; }
+    .marker { position: absolute; top: -7px; width: 2px; height: 22px; }
+    .marker.m7 { left: 23.3%; background: var(--red); }
+    .marker.m30 { left: calc(100% - 2px); background: var(--green); }
+    .t-label { position: absolute; font-size: 10.5px; line-height: 1.35; color: var(--ink2); white-space: nowrap; }
+    .t-label strong { display: block; font-weight: 500; color: var(--ink); font-size: 11px; }
+    .t-label.above { bottom: 18px; transform: translateX(-50%); text-align: center; }
+    .t-label.below { top: 16px; transform: translateX(-50%); text-align: center; }
+    .t-label.l0 { left: 0; transform: none; text-align: left; }
+    .t-label.l7 { left: 23.3%; }
+    .t-label.l7 strong { color: var(--red); }
+    .t-label.lval { left: 75%; }
+    .t-label.lval strong { color: var(--gold); }
+    .t-label.l30 { left: 100%; transform: translateX(-100%); text-align: right; }
+    .t-label.l30 strong { color: var(--green); }
+    .timeline-caption { font-size: 12px; color: var(--ink3); font-style: italic; border-top: 1px solid var(--cream3); padding-top: 12px; }
+    @media (max-width: 560px) {
+      .t-label { font-size: 9px; }
+      .t-label strong { font-size: 9.5px; }
+      .track { margin-bottom: 56px; }
+    }
+    /* Results */
+    .result-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
+    @media (max-width: 640px) { .result-row { grid-template-columns: 1fr; } }
+    .result { background: white; border: 1px solid var(--cream3); border-radius: var(--radius-lg); padding: 22px 20px; }
+    .result-val { font-family: 'DM Serif Display', serif; font-size: 34px; line-height: 1; margin-bottom: 4px; color: var(--green); }
+    .result-val.gold { color: var(--gold); }
+    .result-metric { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink3); margin-bottom: 12px; }
+    .result-note { font-size: 12.5px; color: var(--ink2); line-height: 1.65; }
     .page-footer { text-align: center; padding: 40px 20px; font-size: 12px; color: var(--ink3); border-top: 1px solid var(--cream3); }
   </style>
 </head>
@@ -76,12 +109,13 @@
 <div class="hero">
   <div class="hero-inner">
     <div class="hero-tag">PM Portfolio · Project 3</div>
-    <h1 class="hero-title">Orthians:<br/><em>Building a Product from Scratch</em></h1>
-    <p class="hero-sub">End-to-end product strategy for a 0→1 D2C brand — user research, positioning, and GTM — pre-launch.</p>
+    <h1 class="hero-title">Orthians:<br/><em>zero to launch to turnaround</em></h1>
+    <p class="hero-sub">I co-founded a D2C memory foam brand and led product from scratch: research, positioning, pricing, GTM. Post-launch, returns and ratings hit a wall. 15+ user interviews and three policy bets fixed it.</p>
     <div class="hero-pills">
-      <span class="hero-pill">User Research · Primary Interviews</span>
-      <span class="hero-pill">0→1 Product Strategy</span>
-      <span class="hero-pill">GTM · Pricing · Positioning</span>
+      <span class="hero-pill">0→1 Strategy · Co-founder</span>
+      <span class="hero-pill">Pricing · Positioning · GTM</span>
+      <span class="hero-pill">15+ User Interviews</span>
+      <span class="hero-pill">Returns & Ratings Turnaround</span>
     </div>
   </div>
 </div>
@@ -89,9 +123,9 @@
 <div class="sticky-nav">
   <div class="nav-inner">
     <button class="nav-btn active" onclick="show('overview',this)">Overview</button>
-    <button class="nav-btn" onclick="show('research',this)">Research</button>
-    <button class="nav-btn" onclick="show('decisions',this)">Decisions</button>
-    <button class="nav-btn" onclick="show('metrics',this)">Metrics</button>
+    <button class="nav-btn" onclick="show('build',this)">Building 0→1</button>
+    <button class="nav-btn" onclick="show('wall',this)">The Wall</button>
+    <button class="nav-btn" onclick="show('fix',this)">Fix & Results</button>
     <button class="nav-btn" onclick="show('learnings',this)">Learnings</button>
   </div>
 </div>
@@ -101,69 +135,44 @@
   <!-- OVERVIEW -->
   <div class="section active" id="s-overview">
     <div class="section-eyebrow">PM Context</div>
-    <h2 class="section-heading">What I was solving for</h2>
-    <p class="prose">Orthians Polycraft was a D2C memory foam ergonomic accessories brand I co-founded. My role was to own the full product strategy — user research, market analysis, positioning, pricing, and GTM planning.</p>
-    <p class="prose">The problem: Indians spending long hours at desks, in cars, and on couches were developing chronic back and neck pain. The market had players, but none were competing on genuine product quality at an accessible price. The opportunity was to enter at the same price as the market leader with a meaningfully better product — enabled by in-house manufacturing the competition didn't have.</p>
+    <h2 class="section-heading">The full arc: build, launch, wall, fix</h2>
+    <p class="prose">Orthians Polycraft is a D2C memory foam ergonomic accessories brand I co-founded. I led product from day zero: user research, market analysis, positioning, pricing, and go-to-market. In-house manufacturing was our structural advantage, and every product decision in this case study traces back to it.</p>
+    <p class="prose">The problem we built for: Indians spending long hours at desks, in cars, and on couches were developing chronic back and neck pain. The market had players, but nobody was competing on genuine product quality at an accessible price. Our thesis: enter at the market leader's exact price point with a meaningfully better product, funded by manufacturing cost savings the competition didn't have.</p>
     <div class="callout">
-      <strong>Core thesis:</strong> Better product — higher foam density, superior fabric — at the same price as the market leader. Cost savings from in-house manufacturing went into product quality, not margins.
+      <strong>Core thesis:</strong> better product, same price. Higher foam density and superior fabric at the market leader's price point. Cost savings from in-house manufacturing went into product quality, not margins.
     </div>
+    <p class="prose">This case study has two chapters. <strong>Chapter one:</strong> the zero-to-one decisions that took Orthians from idea to launch. <strong>Chapter two:</strong> what happened when the post-launch numbers broke, and the research-led fix that followed. The second chapter is where I learned the most.</p>
     <div class="kpi-row">
-      <div class="kpi"><div class="kpi-label">Target segment</div><div class="kpi-val" style="font-size:20px">Tier 1</div><div class="kpi-sub">Urban India, age 20–35</div></div>
-      <div class="kpi"><div class="kpi-label">Go-to-market</div><div class="kpi-val" style="font-size:20px">100%</div><div class="kpi-sub">Online: D2C + marketplaces</div></div>
-      <div class="kpi"><div class="kpi-label">Competitive context</div><div class="kpi-val" style="font-size:20px">Challenger</div><div class="kpi-sub">Entering against a Series A funded market leader</div></div>
-    </div>
-    <div class="callout" style="border-left-color: var(--ink3); background: var(--cream2);">
-      <strong>Status:</strong> Full pre-launch strategy completed. Product was not launched due to financial constraints — manufacturing capital couldn't be arranged in time.
+      <div class="kpi"><div class="kpi-label">Turnaround · Returns</div><div class="kpi-val good">−27%</div><div class="kpi-sub">Return rate after the policy changes</div></div>
+      <div class="kpi"><div class="kpi-label">Turnaround · Rating</div><div class="kpi-val good">3.9★</div><div class="kpi-sub">Climbing toward the 4.0+ threshold</div></div>
+      <div class="kpi"><div class="kpi-label">Turnaround · Acquisition</div><div class="kpi-val good">+5%</div><div class="kpi-sub">New purchases, growth restarted</div></div>
     </div>
   </div>
 
-  <!-- RESEARCH -->
-  <div class="section" id="s-research">
-    <div class="section-eyebrow">Primary research</div>
-    <h2 class="section-heading">What I found — and what it changed</h2>
-    <p class="prose">Conducted 15+ user interviews with potential customers across age groups and occupations, combined with Amazon and Flipkart review mining. Treated findings as directional signals given the friends-and-family methodology bias.</p>
-    <div class="divider"></div>
-    <div class="learning">
-      <div class="learning-q">Insight 1 — Pricing isn't the barrier, trust is</div>
-      <div class="learning-a">Most found ₹1,500–₹2,500 acceptable. The hesitation was about whether the product would actually deliver. This reframed the entire positioning — the problem to solve wasn't price, it was credibility.</div>
-    </div>
-    <div class="learning">
-      <div class="learning-q">Insight 2 — Value takes 20–25 days to feel, not 2–3</div>
-      <div class="learning-a">Users who stuck with the product for 20–25 days reported meaningful pain reduction. Those who quit in week one didn't feel the benefit. The real churn risk wasn't product quality — it was users giving up too early. This directly shaped the return policy, post-purchase communication, and onboarding strategy.</div>
-    </div>
-    <div class="learning">
-      <div class="learning-q">Insight 3 — Aesthetics are a real adoption barrier</div>
-      <div class="learning-a">Ergonomic products look unfamiliar. The visual first impression is a significant trial hurdle — especially for products visible on desks or in cars. This shaped the decision to invest in premium fabric and visual identity over functional specs alone.</div>
-    </div>
-    <div class="learning">
-      <div class="learning-q">Insight 4 — Shape retention at 6–8 months vs 3–4 months market standard</div>
-      <div class="learning-a">Long-term users confirmed the foam held shape and fabric stayed intact — a verified outcome from real usage, not a spec on paper. This became the strongest differentiator in positioning and marketing copy.</div>
-    </div>
-  </div>
-
-  <!-- DECISIONS -->
-  <div class="section" id="s-decisions">
-    <div class="section-eyebrow">Strategy</div>
-    <h2 class="section-heading">Key decisions and why</h2>
+  <!-- BUILDING 0→1 -->
+  <div class="section" id="s-build">
+    <div class="section-eyebrow">Chapter one · Zero to one</div>
+    <h2 class="section-heading">Four decisions that defined the build</h2>
+    <p class="prose">The from-scratch phase came down to four calls. Each is listed with the reasoning and the tradeoff, because that's what building from zero actually is: choosing what to give up.</p>
 
     <div class="learning">
-      <div class="learning-q">Positioning — same price, better product</div>
-      <div class="learning-a">Research confirmed buyers weren't price-sensitive — they were trust-sensitive. Competing at the market leader's price point with demonstrably better specs (foam density, fabric quality, shape retention) was the clearest differentiation path. Undercutting on price would've signalled lower quality.</div>
+      <div class="learning-q">Decision 1: Who to build for. Tier 1 urban, age 20-35</div>
+      <div class="learning-a">Desk workers and long commuters with rising disposable income and growing back pain. This segment shops online, reads reviews before buying, and pays for quality. The tradeoff: a narrower initial market than mass-market orthopedic, but chasing everyone would have meant pricing and positioning for nobody.</div>
     </div>
 
     <div class="learning">
-      <div class="learning-q">Pricing — market-rate with healthy GM</div>
-      <div class="learning-a">Priced at ₹1,500–₹4,000 — same as the market leader. In-house manufacturing kept COGS at ~₹550 on a ₹2,000 SKU, delivering ~60% gross margin vs the industry average of 35–40%. That headroom funded aggressive Phase 1 marketing without going underwater.</div>
+      <div class="learning-q">Decision 2: Positioning. Same price, better product</div>
+      <div class="learning-a">Competitor teardowns and review mining showed the market's complaints clustered on durability and quality, not price. So we matched the market leader's range (₹1,500 to ₹4,000) with demonstrably better specs: higher foam density, superior fabric, longer shape retention. The tradeoff: undercutting on price would have bought faster volume, but in a category where trust is the whole game, a lower price signals lower quality.</div>
     </div>
 
     <div class="learning">
-      <div class="learning-q">Return policy — 30 days, not 7</div>
-      <div class="learning-a">Directly informed by the 20–25 day value realization insight. A standard 7-day window would've generated unnecessary returns from users who hadn't felt the product work yet. The 30-day policy was a product decision, not a marketing one.</div>
+      <div class="learning-q">Decision 3: Pricing and unit economics</div>
+      <div class="learning-a">In-house manufacturing kept COGS near ₹550 on a ₹2,000 SKU, roughly 60% gross margin against an industry average of 35 to 40%. That headroom was the plan's engine: it funded marketing without going underwater and left room to absorb the trust-building costs a challenger brand needs. The tradeoff: manufacturing in-house meant heavier fixed costs and capital tied up in capability instead of inventory.</div>
     </div>
 
     <div class="learning">
-      <div class="learning-q">GTM — marketplaces first, D2C for margin</div>
-      <div class="learning-a">Amazon and Flipkart as the Phase 1 volume driver — where buyers search first and where reviews compound. D2C website as the margin driver once trust was established. No offline retail: lower fixed cost, faster feedback loops, and the category already had proven online purchase behaviour.</div>
+      <div class="learning-q">Decision 4: GTM. Marketplaces for volume, D2C for margin</div>
+      <div class="learning-a">Amazon and Flipkart first, where buyers search and reviews compound. Our own site as the margin driver once trust was established. No offline retail: lower fixed cost, faster feedback loops, and the category already had proven online purchase behaviour. The tradeoff: marketplace dependence meant growth was gated by marketplace trust signals, ratings and reviews. That dependence is exactly where chapter two begins.</div>
     </div>
 
     <div class="divider"></div>
@@ -179,44 +188,156 @@
     </table>
   </div>
 
-  <!-- METRICS -->
-  <div class="section" id="s-metrics">
-    <div class="section-eyebrow">Success criteria</div>
-    <h2 class="section-heading">How I'd have measured success</h2>
-    <p class="prose">Metrics defined pre-launch to track whether the positioning thesis was working across the first 6 months.</p>
+  <!-- THE WALL -->
+  <div class="section" id="s-wall">
+    <div class="section-eyebrow">Chapter two · Post-launch</div>
+    <h2 class="section-heading">Three numbers working against each other</h2>
+    <p class="prose">Months into launch, the model started leaking. <strong>Returns were high. Average ratings sat below 4.0. Retention was weak.</strong> And new purchases flattened, because the GTM bet had made marketplace trust signals our front door: a low rating suppresses conversion and organic rank, and every return burns reverse logistics cost and usually leaves a bad review behind.</p>
+    <p class="prose">The uncomfortable part: the product tested well in hand. So why were buyers who chose us sending it back?</p>
+    <div class="callout">
+      <strong>Problem statement:</strong> high returns and weak retention were dragging average ratings below 4.0, which capped new-user acquisition. Diagnose why buyers were rejecting a product that outperformed the market, and fix it without changing the price or the product line.
+    </div>
+    <div class="callout" style="border-left-color: var(--ink3); background: var(--cream2);">
+      <strong>Why returns hurt twice:</strong> the 60% gross margin from chapter one was the plan's engine. Every avoidable return handed that margin to reverse logistics, and often traded it for a one-star review on top.
+    </div>
+
+    <div class="divider"></div>
+    <div class="section-eyebrow">Diagnosis · Primary research</div>
+    <p class="prose">I ran 15+ interviews across three groups: buyers who returned the product, buyers who kept it, and long-term users past six months. On top of that, review mining across our listings and competitors. The sampling skewed toward reachable users, so I treated findings as directional. The pattern was consistent enough to bet on.</p>
+
+    <div class="learning">
+      <div class="learning-q">Insight 1: Value arrives at day 20-25. The return window closed at day 7.</div>
+      <div class="learning-a">Users who stayed consistent for 20 to 25 days reported real pain reduction. But the 7-day return window forced a keep-or-return decision in week one, before the product had any chance to prove itself. Buyers were returning defensively, "while I still can." The deadline was manufacturing returns. The product wasn't.</div>
+    </div>
+    <div class="learning">
+      <div class="learning-q">Insight 2: At ₹2,000, look and feel is part of the product</div>
+      <div class="learning-a">Buyers spending ₹2,000 expected the object itself to feel worth it. Ergonomic products look unfamiliar, and when the first impression read "medical" instead of "premium," doubt set in before the foam got a chance. The first five minutes were shaping the keep-or-return decision as much as the next three weeks.</div>
+    </div>
+    <div class="learning">
+      <div class="learning-q">Insight 3: Durability was our strongest unclaimed asset</div>
+      <div class="learning-a">Market-standard foam loses shape in 3-4 months. Long-term users confirmed ours held for 8-9 months, a verified outcome from real usage rather than a spec sheet, with headroom to push further through foam quality. We had a durability advantage buyers could not see at purchase time, and we were not guaranteeing it anywhere.</div>
+    </div>
+  </div>
+
+  <!-- FIX & RESULTS -->
+  <div class="section" id="s-fix">
+    <div class="section-eyebrow">Chapter two · The turnaround</div>
+    <h2 class="section-heading">Three policy bets, and what moved</h2>
+    <div class="callout">
+      <strong>The counterintuitive bet:</strong> extending the return window 4x would <em>reduce</em> returns, not increase them. If value lands at day 20-25, a 7-day deadline guarantees defensive exits. Give the product time to prove itself and those exits disappear. The risk was real: more time could mean more returns if the thesis was wrong. So return rate became the guardrail metric, watched weekly.
+    </div>
+
+    <div class="timeline-card">
+      <div class="timeline-title">The value curve vs the decision deadline</div>
+      <div class="timeline-sub">Days since purchase</div>
+      <div class="track">
+        <div class="value-band"></div>
+        <div class="marker m7"></div>
+        <div class="marker m30"></div>
+        <span class="t-label above l7"><strong>Day 7</strong>old window ends</span>
+        <span class="t-label above l30"><strong>Day 30</strong>new window ends</span>
+        <span class="t-label below l0"><strong>Day 0</strong>purchase</span>
+        <span class="t-label below lval"><strong>Day 20-25</strong>value felt</span>
+      </div>
+      <div class="timeline-caption">The old policy asked buyers for a verdict two weeks before the product could deliver one.</div>
+    </div>
+
+    <div class="learning">
+      <div class="learning-q">Decision 1: Return window extended from 7 to 30 days</div>
+      <div class="learning-a">Aligned the decision deadline with the value curve. Buyers now judged the product after feeling the benefit, not before. This was a product decision about when users experience value, not a CX generosity gesture.</div>
+    </div>
+    <div class="learning">
+      <div class="learning-q">Decision 2: 1-year warranty</div>
+      <div class="learning-a">Turned invisible durability into a visible trust signal at purchase time. 8-9 months of verified shape retention gave us the data confidence to underwrite 12 months, and it planted a claim that competitors working with 3-4 month foam could not safely match.</div>
+    </div>
+    <div class="learning">
+      <div class="learning-q">Decision 3: 30-day replacement policy</div>
+      <div class="learning-a">A damaged or underwhelming first impression now had an instant resolution path that kept the user in the product instead of exiting to a refund. Replacements preserve the customer. Refunds end the relationship. This also de-risked the aesthetics problem: if look and feel disappointed on arrival, we swapped instead of losing the sale.</div>
+    </div>
+
+    <div class="section-eyebrow" style="margin-top: 8px;">Insight → decision mapping</div>
     <table class="metric-table">
-      <thead><tr><th>Metric</th><th>Target (Month 3)</th><th>Target (Month 6)</th><th>Why it matters</th></tr></thead>
+      <thead><tr><th>What research found</th><th>What it changed</th></tr></thead>
       <tbody>
-        <tr><td><strong>Amazon rating</strong></td><td>≥ 4.2 stars</td><td>≥ 4.4 stars</td><td>Primary trust signal. Below 4.0 kills conversion.</td></tr>
-        <tr><td><strong>Review volume</strong></td><td>50+ reviews</td><td>200+ reviews</td><td>Below 50, buyers don't trust. 200+ enables organic ranking.</td></tr>
-        <tr><td><strong>Return rate</strong></td><td>&lt; 8%</td><td>&lt; 6%</td><td>High returns signal product-market fit failure.</td></tr>
-        <tr><td><strong>D2C conversion</strong></td><td>1.5%</td><td>2.5%</td><td>Industry benchmark 1–3%. Below 1% = trust or UX problem.</td></tr>
-        <tr><td><strong>Repeat purchase rate</strong></td><td>—</td><td>15%+</td><td>Validates durability claim — lasting product = no quick rebuy.</td></tr>
-        <tr><td><strong>Blended CAC</strong></td><td>≤ ₹400</td><td>≤ ₹300</td><td>ASP ₹2,000. CAC above ₹500 kills unit economics.</td></tr>
+        <tr><td>Value lands at day 20-25, window closed at day 7</td><td><strong>Return window 7 → 30 days</strong></td></tr>
+        <tr><td>Durability of 8-9 months, invisible at purchase</td><td><strong>1-year warranty</strong></td></tr>
+        <tr><td>First impressions drive doubt at ₹2,000</td><td><strong>30-day replacement</strong> + premium fabric and finish</td></tr>
       </tbody>
     </table>
-    <div class="callout">
-      <strong>North star:</strong> Amazon rating × review volume — both had to move together. High rating with low reviews is fragile. High reviews with a declining rating means product-market fit is slipping.
+
+    <div class="divider"></div>
+    <div class="section-eyebrow">Outcomes</div>
+    <div class="result-row">
+      <div class="result">
+        <div class="result-val">−27%</div>
+        <div class="result-metric">Return rate</div>
+        <div class="result-note">The guardrail held. A 4x longer window produced fewer exits, not more. Once the deadline pressure was gone, the defensive week-one return pattern collapsed.</div>
+      </div>
+      <div class="result">
+        <div class="result-val gold">3.9★</div>
+        <div class="result-metric">Average rating</div>
+        <div class="result-note">Reviews written after day 25 read differently than reviews written on day 4. Honest read: 3.9 is progress, not the destination. The 4.2+ zone is where marketplace flywheels really compound.</div>
+      </div>
+      <div class="result">
+        <div class="result-val">+5%</div>
+        <div class="result-metric">New purchases</div>
+        <div class="result-note">The first flywheel signal. Better ratings lift conversion, conversion lifts rank, and rank brings the next buyer in cheaper. Acquisition restarted without extra ad spend.</div>
+      </div>
+    </div>
+
+    <div class="section-eyebrow">Guardrails I watched</div>
+    <div class="learning">
+      <div class="learning-q">Return rate under the longer window</div>
+      <div class="learning-a">The core risk of the bet. If returns had risen instead of falling, the 30-day window would have been rolled back. Reviewed weekly.</div>
+    </div>
+    <div class="learning">
+      <div class="learning-q">Warranty claim rate vs margin</div>
+      <div class="learning-a">A 1-year promise carries cost exposure. Claims had to stay small enough that the trust upside outweighed the replacement cost, which the 8-9 month durability data supported.</div>
+    </div>
+    <div class="learning">
+      <div class="learning-q">Rating trajectory, not just level</div>
+      <div class="learning-a">Direction mattered more than the snapshot. A rating climbing toward 4.0 with growing review volume is a recovering product. A flat 3.9 would have meant the fix wasn't compounding.</div>
     </div>
   </div>
 
   <!-- LEARNINGS -->
   <div class="section" id="s-learnings">
-    <div class="section-eyebrow">Honest reflection</div>
-    <h2 class="section-heading">What I learned</h2>
-    <p class="prose">Orthians didn't launch. The work was real, but the reasons it didn't happen taught me more about 0→1 builds than a smooth launch would have.</p>
-    <div class="divider"></div>
+    <div class="section-eyebrow">Reflection</div>
+    <h2 class="section-heading">What this taught me</h2>
+    <p class="prose">Two chapters, two sets of lessons.</p>
+
+    <div class="section-eyebrow">From the build</div>
     <div class="learning">
-      <div class="learning-q">Why it didn't launch</div>
-      <div class="learning-a">We had the strategy, the product vision, and the manufacturing backing. What we didn't have was working capital for the first inventory run while simultaneously building the marketing flywheel. D2C requires cash for inventory, ads, and the time it takes reviews and SEO to compound. We underestimated how long the runway needed to be.</div>
+      <div class="learning-q">Your GTM choice picks your master metric</div>
+      <div class="learning-a">Choosing marketplaces meant ratings became our oxygen. I'd make the same call again, but I'd instrument trust metrics from day one instead of discovering their weight after launch.</div>
     </div>
     <div class="learning">
-      <div class="learning-q">What I'd do differently: validate before building</div>
-      <div class="learning-a">I'd spend the first 30 days selling manually — WhatsApp, Instagram DMs, local offices — before building a website or listing on Amazon. Even 20 paid sales with real feedback would've sharpened the product brief and de-risked the inventory decision. We jumped to infrastructure before validating willingness to pay.</div>
+      <div class="learning-q">Unit economics are strategy, not accounting</div>
+      <div class="learning-a">The 60% margin wasn't just profit headroom. It was what let us match the leader's price, fund trust-building, and later absorb a 1-year warranty. Pricing, manufacturing, and marketing were one decision wearing three hats.</div>
+    </div>
+
+    <div class="section-eyebrow" style="margin-top: 8px;">From the turnaround</div>
+    <div class="learning">
+      <div class="learning-q">Return windows are product decisions, not CX fine print</div>
+      <div class="learning-a">The window has to match the value curve. A product that proves itself at day 25 with a day-7 deadline will bleed returns no matter how good the foam is. I now treat every policy, deadline, and default as part of the product surface.</div>
     </div>
     <div class="learning">
-      <div class="learning-q">What worked: the positioning thesis was real</div>
-      <div class="learning-a">The core bet — better product at the same price, enabled by in-house manufacturing — was genuinely differentiated. The market gap was real. The product strategy wasn't the problem. The business infrastructure around it was.</div>
+      <div class="learning-q">Ratings are an acquisition lever, not a vanity metric</div>
+      <div class="learning-a">On marketplaces, the rating gates conversion and organic rank. Moving it toward 4.0 restarted new-purchase growth without a rupee of extra ad spend. Trust metrics are top-of-funnel metrics.</div>
+    </div>
+    <div class="learning">
+      <div class="learning-q">The product was never the problem</div>
+      <div class="learning-a">The foam already beat the market. The system around it, the deadlines, guarantees, and first impressions, was misaligned with how users actually experienced value. Some of the highest-leverage product work happens around the product, not inside it.</div>
+    </div>
+
+    <div class="section-eyebrow" style="margin-top: 8px;">Looking forward</div>
+    <div class="learning">
+      <div class="learning-q">What I'd do differently</div>
+      <div class="learning-a">Compress the path to first paying users. Twenty manual sales over WhatsApp and Instagram DMs before full listings would have surfaced the day 20-25 value curve before launch instead of after it, and the 30-day window could have been the launch policy, not the fix.</div>
+    </div>
+    <div class="learning">
+      <div class="learning-q">What I'd do next</div>
+      <div class="learning-a">Shift review requests from the standard day 3-5 to day 25+, after value lands, so reviews capture the real experience. Add day 7, 14, and 21 check-ins to keep users consistent through the value curve. And push foam R&D past 12 months of shape retention to widen the durability moat, then let the warranty follow it.</div>
     </div>
   </div>
 
