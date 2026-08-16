@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Bus That Never Came — A redBus Product Case Study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#141821;
+    --night-2:#1b2130;
+    --night-3:#232c3d;
+    --line-dk:#313b50;
+    --beacon:#ff6a4d;
+    --beacon-soft:#ffb29c;
+    --go:#2fae82;
+    --go-soft:#83d6ba;
+    --paper:#f2f3f5;
+    --paper-2:#e8eaef;
+    --ink:#171a21;
+    --ink-soft:#3a424f;
+    --muted:#6b7280;
+    --line:#e2e4ea;
+    --card:#ffffff;
+    --on-dark:#e9ebf1;
+    --on-dark-soft:#9aa3b4;
+    --maxw:1080px;
+    --read:760px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:17px;line-height:1.62;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  }
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;}
+  .read{max-width:var(--read);}
+
+  h1,h2,h3{font-family:"Fraunces",Georgia,serif;font-weight:500;letter-spacing:-.01em;line-height:1.08;margin:0;}
+  .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--beacon);font-weight:500;}
+  p{margin:0 0 1.05em;}
+  a{color:inherit;}
+  strong{font-weight:600;color:var(--ink);}
+  em{font-style:italic;}
+
+  /* hero */
+  .hero{
+    background:
+      radial-gradient(120% 150% at 88% -20%, rgba(255,106,77,.16), transparent 44%),
+      radial-gradient(90% 130% at 0% 120%, rgba(47,174,130,.12), transparent 46%),
+      linear-gradient(165deg,var(--night),#10141d 70%,#161c27);
+    color:var(--on-dark);padding:38px 0 46px;position:relative;overflow:hidden;
+  }
+  .topline{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding-bottom:40px;}
+  .brandmark{display:flex;align-items:center;gap:10px;font-family:"IBM Plex Mono",monospace;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--on-dark-soft);}
+  .beaconmark{width:13px;height:13px;border-radius:50%;background:var(--beacon);box-shadow:0 0 0 4px rgba(255,106,77,.16),0 0 14px 2px rgba(255,106,77,.55);}
+  .kbadge{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;color:var(--on-dark-soft);border:1px solid var(--line-dk);border-radius:999px;padding:5px 12px;}
+  .hero h1{font-size:clamp(42px,7.6vw,82px);color:#fff;font-weight:500;max-width:15ch;}
+  .hero h1 em{color:var(--beacon-soft);font-weight:400;}
+  .deck{font-size:clamp(18px,2.3vw,22px);line-height:1.45;color:var(--on-dark-soft);max-width:58ch;margin:22px 0 0;font-family:"Fraunces",serif;font-style:italic;font-weight:400;}
+  .chips{display:flex;gap:9px;flex-wrap:wrap;margin:30px 0 0;}
+  .chip{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.06em;color:var(--on-dark-soft);background:rgba(255,255,255,.045);border:1px solid var(--line-dk);border-radius:999px;padding:6px 13px;}
+
+  /* stage nav */
+  .stagenav{position:sticky;top:0;z-index:40;background:rgba(242,243,245,.86);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);}
+  .stagenav .wrap{display:flex;gap:4px;overflow-x:auto;padding-top:10px;padding-bottom:10px;scrollbar-width:none;}
+  .stagenav .wrap::-webkit-scrollbar{display:none;}
+  .snav-btn{flex:0 0 auto;display:flex;align-items:center;gap:9px;border:none;background:none;cursor:pointer;font-family:"IBM Plex Sans",sans-serif;font-size:14px;font-weight:500;color:var(--muted);padding:8px 14px;border-radius:999px;white-space:nowrap;transition:.18s;}
+  .snav-btn .num{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted);opacity:.7;}
+  .snav-btn:hover{color:var(--ink);background:var(--paper-2);}
+  .snav-btn[aria-selected="true"]{background:var(--night);color:#fff;}
+  .snav-btn[aria-selected="true"] .num{color:var(--beacon);opacity:1;}
+
+  main{padding:0 0 40px;}
+  .stage{display:none;padding:56px 0 20px;animation:fade .4s ease;}
+  .stage.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .stage-head{margin-bottom:34px;}
+  .stage-head .num{font-family:"IBM Plex Mono",monospace;font-size:13px;letter-spacing:.14em;color:var(--beacon);font-weight:500;}
+  .stage-head h2{font-size:clamp(29px,4.4vw,43px);margin:10px 0 14px;}
+  .stage-head .sub{font-size:19px;color:var(--ink-soft);max-width:62ch;line-height:1.5;}
+  h3.blk{font-size:24px;margin:42px 0 12px;}
+  h4.sub{font-family:"IBM Plex Sans",sans-serif;font-weight:700;font-size:14px;letter-spacing:.02em;text-transform:uppercase;color:var(--muted);margin:26px 0 10px;}
+
+  /* callouts */
+  .callout{border-radius:14px;padding:22px 24px;margin:26px 0;border:1px solid var(--line);background:var(--card);}
+  .callout .tag{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:500;margin-bottom:8px;display:block;}
+  .callout p:last-child{margin-bottom:0;}
+  .callout.insight{background:linear-gradient(180deg,#fff,#f3f9f6);border-color:#cfe8dd;}
+  .callout.insight .tag{color:#1f8a63;}
+  .callout.trap{background:linear-gradient(180deg,#fff,#fdf2ef);border-color:#f6d6cc;}
+  .callout.trap .tag{color:#d1502f;}
+  .callout.pm{background:var(--night);border-color:var(--line-dk);color:var(--on-dark);}
+  .callout.pm .tag{color:var(--beacon);}
+  .callout.pm strong{color:#fff;}
+  .callout.pm em{color:var(--beacon-soft);}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:24px 0;}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:24px 0;}
+  @media(max-width:760px){.grid2,.grid3{grid-template-columns:1fr;}}
+
+  .mnode{border-radius:12px;padding:16px 18px;border:1px solid var(--line);background:var(--card);}
+  .mnode .k{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+  .mnode .v{font-family:"Fraunces",serif;font-size:19px;color:var(--ink);line-height:1.25;}
+  .mnode .d{font-size:13.5px;color:var(--muted);margin-top:6px;line-height:1.5;}
+  .mnode.north{background:var(--night);border-color:var(--line-dk);}
+  .mnode.north .k{color:var(--beacon);}
+  .mnode.north .v{color:#fff;}
+  .mnode.north .d{color:var(--on-dark-soft);}
+
+  /* today strip */
+  .today3{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:stretch;margin:24px 0;}
+  @media(max-width:700px){.today3{grid-template-columns:1fr;}.today3 .arr{transform:rotate(90deg);justify-self:center;}}
+  .tcell{border:1px solid #f6d6cc;background:linear-gradient(180deg,#fff,#fdf2ef);border-radius:12px;padding:14px 16px;}
+  .tcell .k{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#d1502f;margin-bottom:5px;}
+  .tcell .v{font-size:14.5px;color:var(--ink-soft);line-height:1.45;}
+  .today3 .arr{align-self:center;color:#d1502f;font-size:18px;font-family:"IBM Plex Mono",monospace;}
+
+  /* needs chips */
+  .needs{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 6px;}
+  .need{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.03em;border-radius:999px;padding:8px 15px;border:1px solid #cfe8dd;background:#f3f9f6;color:#1f8a63;}
+  .need.last{border-color:var(--line);background:var(--card);color:var(--muted);}
+
+  .persona{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;}
+  .persona.primary{border-color:var(--beacon);box-shadow:0 6px 22px -14px rgba(255,106,77,.55);}
+  .persona .role{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+  .persona .role.p{color:#d1502f;}
+  .persona h4{font-family:"Fraunces",serif;font-weight:500;font-size:22px;margin:4px 0 8px;color:var(--ink);}
+  .persona p{font-size:15px;color:var(--ink-soft);margin:0;line-height:1.55;}
+  .persona .job{margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);font-size:14.5px;font-style:italic;color:var(--muted);}
+
+  ul.clean,ol.clean{margin:14px 0 20px;padding-left:0;list-style:none;}
+  ul.clean li,ol.clean li{position:relative;padding-left:26px;margin-bottom:11px;line-height:1.55;}
+  ul.clean li::before{content:"";position:absolute;left:4px;top:11px;width:7px;height:7px;border-radius:50%;background:var(--beacon);}
+  ul.clean.go li::before{background:var(--go);}
+
+  /* table */
+  .tablewrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:14px;}
+  table{width:100%;border-collapse:collapse;font-size:14.5px;min-width:560px;}
+  thead th{background:var(--night);color:#fff;font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;text-align:left;padding:13px 16px;}
+  tbody td{padding:13px 16px;border-top:1px solid var(--line);color:var(--ink-soft);vertical-align:top;}
+  tbody tr.win td{background:#f3f9f6;color:var(--ink);}
+  tbody tr.win td:first-child{font-weight:600;color:var(--ink);border-left:3px solid var(--go);}
+  .verdict{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.04em;border-radius:6px;padding:3px 9px;white-space:nowrap;}
+  .verdict.no{background:#fdece7;color:#c14a2b;}
+  .verdict.yes{background:#e2f4ec;color:#1c8a62;}
+
+  /* route signature */
+  .route{margin:34px 0 0;padding:24px 26px 16px;background:var(--night);border:1px solid var(--line-dk);border-radius:16px 16px 0 0;position:relative;}
+  .route-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px;}
+  .route-head .t{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--on-dark-soft);}
+  .route-fig{position:relative;width:100%;}
+  .route-fig svg{display:block;width:100%;height:auto;}
+  .rmark{position:absolute;transform:translateX(-50%);font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.03em;line-height:1.3;white-space:nowrap;}
+  .rmark.origin{left:5%;top:60%;color:var(--on-dark-soft);}
+  .rmark.brk{left:49%;top:2%;color:var(--beacon-soft);}
+  .rmark.dead{left:75%;top:8%;color:#8b93a3;}
+  .rmark.reco{left:70%;top:84%;color:var(--go-soft);}
+  .route-annot{margin:0;padding:12px 26px 16px;background:var(--night);border:1px solid var(--line-dk);border-top:none;border-radius:0 0 16px 16px;display:flex;gap:22px;flex-wrap:wrap;}
+  .route-annot div{font-size:13px;color:var(--on-dark-soft);}
+  .route-annot b{color:#fff;font-weight:500;}
+  .route-annot .c-no b{color:var(--beacon-soft);}
+  .route-annot .c-go b{color:var(--go-soft);}
+
+  /* tier cards */
+  .tiers{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:24px 0;}
+  @media(max-width:760px){.tiers{grid-template-columns:1fr;}}
+  .tier{border:1px solid var(--line);border-radius:14px;padding:20px 22px;background:var(--card);}
+  .tier.paid{border-color:var(--go);background:linear-gradient(180deg,#fff,#f3f9f6);}
+  .tier .n{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+  .tier.paid .n{color:#1f8a63;}
+  .tier h5{font-family:"Fraunces",serif;font-weight:500;font-size:21px;margin:5px 0 9px;color:var(--ink);}
+  .tier ul{margin:0;padding-left:18px;}
+  .tier li{font-size:14px;color:var(--ink-soft);margin-bottom:8px;line-height:1.5;}
+
+  /* scope columns */
+  .scope{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:24px 0;}
+  @media(max-width:760px){.scope{grid-template-columns:1fr;}}
+  .scope-col{border:1px solid var(--line);border-radius:14px;padding:18px 20px;background:var(--card);}
+  .scope-col .h{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:500;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--line);}
+  .scope-col.now .h{color:#1f8a63;}
+  .scope-col.next .h{color:#c98a1a;}
+  .scope-col.out{background:#faf7f6;}
+  .scope-col.out .h{color:#b4552f;}
+  .scope-col ul{margin:0;padding-left:18px;}
+  .scope-col li{font-size:14px;color:var(--ink-soft);margin-bottom:9px;line-height:1.45;}
+  .scope-col.out li{color:var(--muted);}
+
+  /* phone mockups */
+  .phones{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin:30px 0 12px;}
+  @media(max-width:820px){.phones{grid-template-columns:1fr;max-width:340px;margin-inline:auto;}}
+  .phone-col .cap{font-size:14px;color:var(--ink-soft);margin-top:14px;line-height:1.5;}
+  .phone-col .cap b{color:var(--ink);font-weight:600;}
+  .phone{aspect-ratio:9/17;border-radius:30px;padding:11px;background:#0a0d14;border:1px solid #262f40;box-shadow:0 24px 50px -22px rgba(20,24,33,.7),inset 0 1px 0 rgba(255,255,255,.05);position:relative;overflow:hidden;}
+  .screen{position:absolute;inset:11px;border-radius:22px;overflow:hidden;background:linear-gradient(180deg,#171d29,#111621);display:flex;flex-direction:column;}
+  .notch{height:20px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-family:"IBM Plex Mono",monospace;font-size:8.5px;color:#8b93a5;flex:0 0 auto;position:relative;}
+  .notch .pill{width:34px;height:5px;border-radius:99px;background:#262f40;position:absolute;left:50%;transform:translateX(-50%);top:7px;}
+  .scr-body{flex:1;position:relative;padding:14px;color:var(--on-dark);}
+  .alertbar{display:flex;gap:9px;align-items:flex-start;background:rgba(255,106,77,.12);border:1px solid rgba(255,106,77,.4);border-radius:11px;padding:11px;}
+  .alertbar .ic{width:20px;height:20px;border-radius:50%;background:var(--beacon);flex:0 0 auto;display:flex;align-items:center;justify-content:center;color:#2a0f08;font-weight:700;font-size:12px;font-family:"IBM Plex Mono",monospace;}
+  .alertbar .tx{font-size:10.5px;line-height:1.35;}
+  .alertbar .tx b{color:#fff;font-weight:600;}
+  .alertbar .tx span{color:#d7b3a8;}
+  .holdbox{margin-top:12px;background:#16261f;border:1px solid rgba(47,174,130,.45);border-radius:11px;padding:11px;font-size:10px;color:#9aa3b4;}
+  .holdbox b{color:#fff;}
+  .holdbox .timer{display:inline-block;margin-top:7px;font-family:"IBM Plex Mono",monospace;font-size:9.5px;color:var(--go-soft);border:1px solid rgba(47,174,130,.45);border-radius:99px;padding:3px 9px;}
+  .cta-btn{margin-top:13px;text-align:center;background:var(--beacon);color:#2a0f08;font-weight:600;font-size:10.5px;border-radius:9px;padding:10px;font-family:"IBM Plex Sans",sans-serif;}
+  .cta-btn.go{background:var(--go);color:#0e2a20;}
+  .opt-h{font-family:"IBM Plex Mono",monospace;font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:#8b93a5;margin:6px 0 10px;}
+  .opt{display:flex;justify-content:space-between;align-items:center;padding:10px 11px;border-radius:10px;background:#1e2635;font-size:10.5px;margin-bottom:8px;border:1px solid transparent;gap:8px;}
+  .opt.go{border-color:rgba(47,174,130,.5);}
+  .opt .l{line-height:1.35;}
+  .opt .l b{color:#fff;font-weight:600;}
+  .opt .l span{color:#8b93a5;font-family:"IBM Plex Mono",monospace;font-size:8.5px;}
+  .opt .r{font-family:"IBM Plex Mono",monospace;font-size:9.5px;color:var(--go-soft);flex:0 0 auto;}
+  .opt .r.grey{color:#8b93a5;}
+  .safebox{margin-top:6px;text-align:center;}
+  .safebox .ring{width:58px;height:58px;border-radius:50%;border:3px solid #24304a;border-top-color:var(--go);margin:8px auto 12px;position:relative;}
+  .safebox .ring::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--go-soft);}
+  .safebox h6{margin:0 0 4px;font-family:"Fraunces",serif;font-weight:500;font-size:15px;color:#fff;}
+  .safebox p{margin:0 0 12px;font-size:10px;color:#9aa3b4;line-height:1.45;}
+  .safe-row{display:flex;gap:7px;font-size:9px;color:#9aa3b4;align-items:center;justify-content:center;margin-top:9px;flex-wrap:wrap;}
+  .safe-row .tag2{background:#1e2635;border:1px solid #2c3648;border-radius:99px;padding:5px 9px;}
+
+  .apphdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;}
+  .apphdr .brand{font-family:"Fraunces",serif;font-size:13.5px;color:#fff;}
+  .apphdr .live{font-family:"IBM Plex Mono",monospace;font-size:8px;color:var(--beacon);letter-spacing:.1em;text-transform:uppercase;}
+  .apphdr .live.g{color:var(--go-soft);}
+  .tripcard{margin-top:10px;background:#1a2231;border:1px solid #2a3446;border-radius:11px;padding:10px 11px;}
+  .tripcard .tr{display:flex;align-items:center;gap:7px;font-size:11.5px;color:#fff;font-weight:600;}
+  .tripcard .tr .ar{color:var(--beacon);}
+  .tripcard .meta{font-family:"IBM Plex Mono",monospace;font-size:8px;color:#8b93a5;margin-top:5px;letter-spacing:.05em;}
+  .helper{margin-top:10px;text-align:center;font-size:8.5px;color:#767e90;font-family:"IBM Plex Mono",monospace;letter-spacing:.04em;}
+  .gtag{margin-top:6px;background:rgba(47,174,130,.1);border:1px dashed rgba(47,174,130,.4);border-radius:9px;padding:8px 10px;font-size:9px;color:var(--go-soft);line-height:1.4;}
+  .ticketcard{margin-top:2px;background:#1a2231;border:1px solid #2a3446;border-radius:11px;padding:4px 11px;}
+  .ticketrow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-bottom:1px dashed #2a3446;}
+  .ticketrow:last-child{border-bottom:none;}
+  .ticketrow .k2{color:#8b93a5;font-family:"IBM Plex Mono",monospace;font-size:8px;letter-spacing:.08em;text-transform:uppercase;}
+  .ticketrow .v2{color:#fff;font-weight:600;font-size:10px;text-align:right;}
+  .protochip{text-decoration:none;border-color:var(--beacon);color:var(--beacon-soft);transition:.18s;}
+  .protochip:hover{background:rgba(255,106,77,.12);}
+  .protolink{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+    border:1px solid var(--line);border-radius:14px;padding:18px 22px;background:var(--card);margin:26px 0;}
+  .protolink .pl-t{font-family:"Fraunces",serif;font-size:19px;color:var(--ink);}
+  .protolink .pl-d{font-size:13.5px;color:var(--muted);margin-top:3px;line-height:1.5;}
+  .protolink a.pl-btn{flex:0 0 auto;text-decoration:none;background:var(--night);color:#fff;
+    font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.06em;border-radius:9px;padding:11px 18px;transition:.18s;}
+  .protolink a.pl-btn:hover{background:var(--beacon);color:#2a0f08;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin:8px 0 0;}
+  .legend span{display:flex;align-items:center;gap:7px;}
+  .swatch{width:13px;height:9px;border-radius:3px;display:inline-block;}
+
+  /* prevnext */
+  .prevnext{display:flex;justify-content:space-between;gap:14px;margin-top:52px;padding-top:26px;border-top:1px solid var(--line);}
+  .pn-btn{flex:1;text-align:left;border:1px solid var(--line);border-radius:12px;padding:14px 18px;background:var(--card);cursor:pointer;font-family:inherit;transition:.18s;color:var(--ink);}
+  .pn-btn:hover:not(:disabled){border-color:var(--night);transform:translateY(-2px);}
+  .pn-btn:disabled{opacity:.35;cursor:default;}
+  .pn-btn.next{text-align:right;}
+  .pn-btn .k{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+  .pn-btn .t{font-family:"Fraunces",serif;font-size:17px;margin-top:3px;}
+
+  footer{background:var(--night);color:var(--on-dark-soft);padding:34px 0;font-size:13px;}
+  footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;}
+  footer b{color:var(--on-dark);font-weight:500;}
+  .foot-note{font-size:12px;color:#767e90;max-width:60ch;line-height:1.5;}
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    .stage{animation:none;}
+  }
+  @media print{
+    .stagenav,.prevnext{display:none !important;}
+    .stage{display:block !important;page-break-before:always;}
+    .stage:first-of-type{page-break-before:avoid;}
+    body{font-size:12px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="wrap">
+    <div class="topline">
+      <div class="brandmark"><span class="beaconmark"></span> Product Case Study · 03</div>
+      <div class="kbadge">redBus · Intercity bus marketplace</div>
+    </div>
+    <span class="eyebrow">Case study 03 · redBus · Rescue</span>
+    <h1>The bus that <em>never came</em></h1>
+    <p class="deck">When an operator cancels last-minute, redBus issues a refund and leaves the passenger to sort out the night alone. I designed <strong style="font-style:normal;color:#fff;font-weight:500">Rescue</strong> — a seat automatically held on the next bus, a discounted stay when there isn't one, and a paid Journey Guarantee that covers the cost.</p>
+    <div class="chips">
+      <span class="chip">Self-directed PM case study</span>
+      <span class="chip">Scope · the cancellation moment</span>
+      <span class="chip">~7 min read</span>
+      <a class="chip protochip" href="https://www.figma.com/design/G6YJLpd159cYN6Z6iOBOKX" target="_blank" rel="noopener">Figma prototype ↗</a>
+    </div>
+  </div>
+</header>
+
+<!-- ============ STAGE NAV ============ -->
+<nav class="stagenav" aria-label="Case study stages">
+  <div class="wrap" role="tablist">
+    <button class="snav-btn" role="tab" aria-selected="true"  data-stage="0"><span class="num">01</span> The Problem</button>
+    <button class="snav-btn" role="tab" aria-selected="false" data-stage="1"><span class="num">02</span> Users &amp; Market</button>
+    <button class="snav-btn" role="tab" aria-selected="false" data-stage="2"><span class="num">03</span> Solution</button>
+    <button class="snav-btn" role="tab" aria-selected="false" data-stage="3"><span class="num">04</span> Success Metrics</button>
+    <button class="snav-btn" role="tab" aria-selected="false" data-stage="4"><span class="num">05</span> Tradeoffs</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- ===== 01 THE PROBLEM ===== -->
+  <section class="stage active" id="s0">
+    <div class="stage-head">
+      <span class="num">01 / THE PROBLEM</span>
+      <h2>The bus doesn't come — and the app's only answer is a refund</h2>
+      <p class="sub">One specific moment in the journey where the product abandons the passenger exactly when they need it most.</p>
+    </div>
+
+    <div class="read">
+      <h4 class="sub">Context — what redBus is</h4>
+      <p>redBus is India's largest app for booking intercity bus tickets: you pick a route, choose a seat, and pay in the app, while independent bus operators actually run the buses. The same app also books train tickets and hotels — which matters later in this study.</p>
+
+      <h4 class="sub">What happens today</h4>
+    </div>
+    <div class="today3">
+      <div class="tcell"><div class="k">Step 1</div><div class="v">The operator cancels the trip — sometimes hours, sometimes minutes before departure.</div></div>
+      <div class="arr">→</div>
+      <div class="tcell"><div class="k">Step 2</div><div class="v">redBus processes a refund to the original payment source.</div></div>
+      <div class="arr">→</div>
+      <div class="tcell"><div class="k">Step 3</div><div class="v">That's it. Getting home is now entirely the passenger's problem.</div></div>
+    </div>
+
+    <h3 class="blk">The night it breaks</h3>
+    <div class="read">
+      <p style="font-family:'Fraunces',serif;font-style:italic;font-size:20px;line-height:1.5;color:var(--ink-soft)">You're going Delhi → Dehradun on the 2:30 AM bus — booked precisely so you reach by morning. It's 2:10, and the boarding point is a service road off the highway: shuttered shops, parked trucks, two other passengers with bags. 2:30 passes. Nothing. You call the operator — no answer. You call again — <em>"it's cancelled."</em> You open the app: your ticket still says <strong style="font-style:normal">CONFIRMED · ON TIME</strong>. Then at 2:47 a notification lands: <strong style="font-style:normal">"Your refund of ₹640 has been initiated."</strong></p>
+      <p>That notification is the product's entire answer. You're standing on a service road at 3 AM with a bag, in a city that isn't yours. The money will arrive in three to five days. The problem is <em>tonight</em>. What you actually need is one of exactly two things:</p>
+    </div>
+    <div class="needs">
+      <span class="need">A confirmed seat on the next bus out</span>
+      <span class="need">or a safe place to stay till morning</span>
+      <span class="need last">the refund is the floor, not the answer</span>
+    </div>
+
+    <!-- SIGNATURE: the route that breaks and reroutes -->
+    <div class="route">
+      <div class="route-head">
+        <span class="t">Your booking · one route</span>
+        <span class="t" style="color:var(--beacon)">what happens when it fails</span>
+      </div>
+      <div class="route-fig">
+        <svg viewBox="0 0 900 175" preserveAspectRatio="none" aria-label="A route from the boarding point that hits a cancelled bus, then either dead-ends at a refund or reroutes onward to an alternate bus, a train, or a safe stay">
+          <line x1="44" y1="70" x2="428" y2="70" stroke="var(--on-dark-soft)" stroke-width="2.4" stroke-linecap="round"/>
+          <circle cx="44" cy="70" r="5" fill="var(--on-dark)"/>
+          <circle cx="172" cy="70" r="3.5" fill="var(--on-dark-soft)"/>
+          <circle cx="300" cy="70" r="3.5" fill="var(--on-dark-soft)"/>
+          <line x1="440" y1="28" x2="440" y2="152" stroke="var(--beacon)" stroke-width="1" stroke-opacity=".38"/>
+          <rect x="431" y="61" width="18" height="18" rx="2" transform="rotate(45 440 70)" fill="var(--beacon)"/>
+          <path d="M440,70 L666,42" stroke="#8b93a3" stroke-width="1.8" stroke-dasharray="2 6" fill="none" stroke-linecap="round"/>
+          <rect x="668" y="36" width="11" height="11" fill="none" stroke="#8b93a3" stroke-width="1.6"/>
+          <path class="reroute" d="M440,70 Q612,150 856,120" stroke="var(--go)" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+          <circle cx="560" cy="112" r="3.4" fill="var(--go)"/>
+          <circle cx="672" cy="124" r="3.4" fill="var(--go)"/>
+          <circle cx="768" cy="122" r="3.4" fill="var(--go)"/>
+          <circle cx="856" cy="120" r="6.5" fill="var(--go)"/>
+          <path d="M852,120 l3,3.5 l6.5,-7.5" stroke="#0e2a20" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="rmark origin">boarding point<br>2:30 AM</div>
+        <div class="rmark brk">✕ operator cancels</div>
+        <div class="rmark dead">today → refund,<br>dead end</div>
+        <div class="rmark reco">the rescue → next bus · train · a stay</div>
+      </div>
+    </div>
+    <div class="route-annot">
+      <div class="c-no">Today the journey <b>ends at the break</b> — a refund, and you're on your own</div>
+      <div class="c-go">redBus can <b>put you onward</b> — it sells every operator's seats, trains, and hotels in one app</div>
+    </div>
+
+    <div class="callout trap" style="margin-top:30px">
+      <span class="tag">Why this stays unbuilt</span>
+      <p style="margin:0">On the dashboard, this trip closes cleanly: <strong>cancellation logged, refund processed, case resolved.</strong> The stranding never shows up in any metric — the passenger's worst night on the platform is recorded as a solved ticket. Problems the data can't see don't get roadmap slots.</p>
+    </div>
+  </section>
+
+  <!-- ===== 02 USERS & MARKET ===== -->
+  <section class="stage" id="s1">
+    <div class="stage-head">
+      <span class="num">02 / USERS &amp; MARKET</span>
+      <h2>One user, standing on a service road</h2>
+      <p class="sub">This isn't a many-persona problem. There is one user — the stranded passenger — and a few situations that raise the stakes.</p>
+    </div>
+
+    <div class="persona primary">
+      <span class="role p">The user</span>
+      <h4>The Stranded Passenger</h4>
+      <p>Booked a night bus <em>because</em> it lands by morning — for a shift, an exam, a function, a connecting train. Now it's around 3 AM at an informal boarding point, the operator has cancelled, alternatives are thinning by the minute, and the decision window is short. Money back in 3–5 days solves nothing about tonight.</p>
+      <div class="job">"Get me on the next bus out — or somewhere safe until morning. Fast, and without me having to figure it out alone."</div>
+    </div>
+
+    <h4 class="sub">The same user — when the stakes climb</h4>
+    <ul class="clean">
+      <li><strong>A woman travelling alone at night.</strong> Safety outranks money entirely; waiting on an empty road is the worst option on the table.</li>
+      <li><strong>A small group or family.</strong> Finding three or four seats <em>together</em> on another bus at 3 AM is genuinely hard — late-night inventory is thin, and whatever is left is usually scattered single seats across different buses.</li>
+      <li><strong>A first-time visitor.</strong> Doesn't know which areas are safe, where the bus stand is, or what a fair option looks like at 3 AM.</li>
+    </ul>
+
+    <h4 class="sub">What they need, in order</h4>
+    <p class="read">A <strong>confirmed onward seat</strong> first. If no bus exists soon, a <strong>safe stay</strong> for the night. Throughout, <strong>clarity fast</strong> — what happened, what the options are, what each costs. The refund matters, but it's the floor: it should ride along with every option, never be the only one.</p>
+
+    <h3 class="blk">Rough size of the opportunity</h3>
+    <div class="callout insight">
+      <span class="tag">Fermi — to validate</span>
+      <p style="margin:0">redBus books <strong>~200k+ seats a day</strong> (a figure it advertises). If even <strong>1–3%</strong> of trips fail materially — last-minute cancellation or no-show — that's roughly <strong>2,000–6,000 stranded passengers a day</strong>, or <strong>60k–180k a month</strong>. Conservative and unvalidated, but the shape is clear: the failure path isn't a rare edge case. It's a daily event at scale, concentrated on night routes where it hurts most.</p>
+    </div>
+
+    <h3 class="blk">How everyone else handles a failed journey</h3>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Mode</th><th>When the trip fails</th><th>Why buses lag</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Trains — redRail / IRCTC</strong></td><td>Alternate Trip: waitlist confirms, or a 3× refund</td><td>One central system holds all inventory and truth — easy to guarantee against.</td></tr>
+          <tr><td><strong>Airlines</strong></td><td>Rebooking onto the next flight is standard practice</td><td>Deep rebooking norms and infrastructure buses don't have.</td></tr>
+          <tr><td><strong>Buses, today</strong></td><td>Refund — then you're on your own</td><td>Thousands of independent operators, no central inventory, no rebooking norm. Nobody owns the recovery.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout pm">
+      <span class="tag">redBus's unfair advantage</span>
+      <p style="margin:0">The standalone redBus app already sells <strong>buses, trains, and hotels</strong>. No one else in bus travel owns all three. A cancelled bus can be rescued with <em>another bus, a train, or a room</em> — without the passenger ever leaving the app. That's the asset this product spends.</p>
+    </div>
+  </section>
+
+  <!-- ===== 03 SOLUTION ===== -->
+  <section class="stage" id="s2">
+    <div class="stage-head">
+      <span class="num">03 / SOLUTION</span>
+      <h2>A rescue, not a refund — and a way to pay for it</h2>
+      <p class="sub">Four ways to build this were on the table. Three break on economics or on user behaviour. Here's the reasoning, then the design.</p>
+    </div>
+
+    <h3 class="blk">What we rejected along the way</h3>
+    <p class="read">Seven approaches were considered and killed before the design below. Most fail on economics, or because the passenger could already do it themselves with the refund.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Approach</th><th>Verdict</th><th>Why it dies</th></tr></thead>
+        <tbody>
+          <tr><td>Faster, bigger refund</td><td><span class="verdict no">Rejected</span></td><td>Money in 3–5 days doesn't solve a service road at 3 AM. Settles the transaction, not the stranding.</td></tr>
+          <tr><td>Just show nearby alternate buses</td><td><span class="verdict no">Rejected</span></td><td>The refund already lets anyone search and rebook. <strong>Without a confirmed held seat there is no product</strong> — it's a search result, not a rescue.</td></tr>
+          <tr><td>Silently auto-rebook onto the next bus</td><td><span class="verdict no">Rejected</span></td><td>The alternate may leave at 5 AM from a boarding point 8 km away. Moving someone without asking is presumptuous — the passenger must choose.</td></tr>
+          <tr><td>Copy redRail's 3× refund model</td><td><span class="verdict no">Rejected</span></td><td>Still money, not a seat — and it works on trains only because one central system (IRCTC) holds all inventory. Buses have thousands of disconnected operators.</td></tr>
+          <tr><td>Free hotel stays for everyone, redBus-funded</td><td><span class="verdict no">Rejected</span></td><td>Nobody funds a ₹2,000 room on a ₹600 ticket from platform margin. Replaced by a discounted stay, and a capped covered stay for add-on holders.</td></tr>
+          <tr><td>Cab to a safe location</td><td><span class="verdict no">Rejected</span></td><td>The standalone redBus app has no cab product — buses, trains, and hotels only. Designing around inventory that isn't there.</td></tr>
+          <tr><td>Aggressively delist unreliable operators</td><td><span class="verdict no">Rejected</span></td><td>Supply is scarce — very few operators run thin routes and small towns at all. Delisting them leaves those passengers with <strong>no bus</strong>, which is worse than an unreliable one.</td></tr>
+          <tr class="win"><td>Two-tier: free Rescue for all + paid Journey Guarantee</td><td><span class="verdict yes">Chosen</span></td><td>Delivers the one-tap confirmed seat at near-zero platform cost, and lets those who want full certainty buy it — turning a cost centre into a revenue line.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+
+
+    <h3 class="blk">The design — two tiers, one flow</h3>
+    <div class="tiers">
+      <div class="tier">
+        <div class="n">Tier 1 · For every booking · free</div>
+        <h5>redBus Rescue</h5>
+        <ul>
+          <li><strong>The moment the operator cancels</strong> (the same system event that triggers today's refund), the app fires the Rescue flow instead of a silent refund.</li>
+          <li><strong>A best-match seat is auto-held for 10 minutes</strong> — same route, nearest departure, similar seat type. The <strong>hold is free</strong>; the refund transfers to the new ticket and the passenger pays only the fare <em>difference</em>. (With the add-on, that difference is covered too.)</li>
+          <li><strong>A stay option:</strong> a partner hotel near the boarding point at a meaningful discount — they suffered because of a booking made on us; the discount is the apology, funded largely by the hotel's own dead 3 AM inventory.</li>
+          <li><strong>Full refund stays one tap away</strong>, always.</li>
+        </ul>
+      </div>
+      <div class="tier paid">
+        <div class="n">Tier 2 · Opt-in add-on at checkout · ₹49–119</div>
+        <h5>Journey Guarantee</h5>
+        <ul>
+          <li><strong>Priority hold</strong> — the seat is reserved before the general pool. When a 40-seat bus dies, everyone is chasing the same few alternates.</li>
+          <li><strong>The alternate seat is free</strong> — any fare difference is covered, not charged.</li>
+          <li><strong>No bus within ~4 hours</strong> → <strong>hotel covered up to ₹1,500</strong>, plus a confirmed seat on the first morning departure.</li>
+          <li><strong>Neither possible</strong> → full fare back <strong>plus travel credit</strong>. It always pays out something.</li>
+          <li><strong>Not included:</strong> you changing your mind — that's Free Cancellation, a separate product covering a different risk.</li>
+        </ul>
+      </div>
+    </div>
+
+
+    <h4 class="sub">Does the money work? — illustrative unit economics</h4>
+    <p class="read">The question is simple: if we sell the add-on, does the money collected cover what we pay out? Worked through on 100 protected tickets.</p>
+
+    <h4 class="sub">Step 1 — what we collect, and how many claims</h4>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Step</th><th>Assumption</th><th>Amount</th></tr></thead>
+        <tbody>
+          <tr><td>We collect</td><td>100 passengers buy the add-on at ₹119 (late-night price)</td><td><strong>₹11,900 in</strong></td></tr>
+          <tr><td>Trips that fail</td><td>~2% of night trips get cancelled by the operator</td><td><strong>2 claims</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4 class="sub">Step 2 — what one claim can cost us</h4>
+    <p class="read">Each stranded passenger resolves in one of three ways. Note the bus fare itself is refunded or transferred in <em>every</em> case — we'd have refunded it anyway, so it isn't a cost of the guarantee. Only the extra is:</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Outcome</th><th>What the Guarantee pays</th><th>Cost to us</th></tr></thead>
+        <tbody>
+          <tr><td>Takes the alternate bus</td><td>Just the fare difference</td><td><strong>~₹150</strong></td></tr>
+          <tr><td>No bus in time → takes the stay</td><td>Hotel, capped</td><td><strong>~₹1,500</strong></td></tr>
+          <tr><td>Nothing feasible at all</td><td>Travel credit on top of the refund</td><td><strong>~₹500</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4 class="sub">Step 3 — every way those 2 claims can land</h4>
+    <p class="read">Rather than assume a split we have no data for, here is <strong>every possible combination</strong> — from cheapest to worst case — against the ₹11,900 collected:</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>How the 2 claims resolve</th><th>We pay out</th><th>Payout ratio</th><th>Left with us</th></tr></thead>
+        <tbody>
+          <tr><td>Both take the alternate bus</td><td>₹150 + ₹150 = <strong>₹300</strong></td><td>2.5%</td><td>₹11,600</td></tr>
+          <tr><td>One bus, one credit</td><td>₹150 + ₹500 = <strong>₹650</strong></td><td>5.5%</td><td>₹11,250</td></tr>
+          <tr><td>Both get credit only</td><td>₹500 + ₹500 = <strong>₹1,000</strong></td><td>8.4%</td><td>₹10,900</td></tr>
+          <tr><td>One bus, one hotel</td><td>₹150 + ₹1,500 = <strong>₹1,650</strong></td><td>13.9%</td><td>₹10,250</td></tr>
+          <tr><td>One hotel, one credit</td><td>₹1,500 + ₹500 = <strong>₹2,000</strong></td><td>16.8%</td><td>₹9,900</td></tr>
+          <tr class="win"><td>Both need a hotel — the worst case</td><td>₹1,500 + ₹1,500 = <strong>₹3,000</strong></td><td>25.2%</td><td>₹8,900</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="read"><strong>The point: the add-on stays profitable in every single scenario.</strong> Even if both stranded passengers need a hotel — the most expensive outcome possible — we keep ₹8,900 of ₹11,900. The unknown that actually matters isn't the payout, it's the <strong>cancellation rate</strong>: at 2% this is comfortable, and it only gets tight if failures run several times higher. That's the number to validate first.</p>
+    <p class="read">The free Rescue tier costs almost nothing separately: the alternate seat is paid for by the refund we were going to issue anyway, and the hotel discount comes mostly from the hotel's own empty 3 AM rooms.</p>
+    <div class="callout trap">
+      <span class="tag">Pricing the add-on — the honest read</span>
+      <p style="margin:0">Even in the <em>worst</em> case above — both passengers needing a hotel — we return only <strong>25%</strong> of what we collect, and in the likeliest cases far less. Insurance products typically pay out 40–60%. So ₹119 is either <strong>priced too high</strong> — which suppresses how many people buy it, and looks predatory to anyone who does the maths — or the cover should be considerably more generous (a higher stay cap, larger credit). My call: hold <strong>₹119 only on late-night, high-risk routes</strong> and price regular routes nearer <strong>₹49–79</strong>, tuned on real cancellation data. Lots of people buying a fair guarantee beats a rich margin nobody buys.</p>
+    </div>
+
+
+    <h3 class="blk">What ships — and what doesn't</h3>
+    <div class="scope">
+      <div class="scope-col now">
+        <div class="h">Ships first · MVP</div>
+        <ul>
+          <li>Cancellation-triggered Rescue flow on dense night corridors</li>
+          <li>Auto seat-hold + refund transfer + pay-the-difference</li>
+          <li>Discounted partner-hotel option</li>
+          <li>Journey Guarantee pilot at ~₹119 on night bookings</li>
+        </ul>
+      </div>
+      <div class="scope-col next">
+        <div class="h">Fast-follow</div>
+        <ul>
+          <li>Train option via redRail where a rail parallel exists</li>
+          <li>Group holds — seats kept together</li>
+          <li>Women's safety flow: stay surfaced first late-night, live status share, priority support</li>
+          <li>Route- and hour-based Guarantee pricing</li>
+        </ul>
+      </div>
+      <div class="scope-col out">
+        <div class="h">Explicitly out</div>
+        <ul>
+          <li>Mid-journey breakdowns — a different problem, different design</li>
+          <li>Free guaranteed recovery for all, platform-funded</li>
+          <li>Selling the Guarantee on routes where no rescue is ever feasible</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout insight">
+      <span class="tag">Scoped for later — prevention</span>
+      <p style="margin:0">Many cancellations are predictable: operators drop low-occupancy trips, and some routes fail repeatedly. redBus sees occupancy live — it could flag high-risk trips and <em>consolidate passengers before the bus dies</em>, which is cheaper than any rescue. Sequenced after the reactive core proves out.</p>
+    </div>
+
+    <h3 class="blk">The key screens</h3>
+    <div class="protolink">
+      <div>
+        <div class="pl-t">Interactive prototype — built in redBus's UI</div>
+        <div class="pl-d">The full flow as it would appear inside the real app: the booking, the cancellation with the seat already held, the options, the seat map, and the guarantee at checkout.</div>
+      </div>
+      <a class="pl-btn" href="https://www.figma.com/design/G6YJLpd159cYN6Z6iOBOKX" target="_blank" rel="noopener">Open in Figma ↗</a>
+    </div>
+    <div class="phones">
+      <div class="phone-col">
+        <div class="phone"><div class="screen">
+          <div class="notch"><span>2:47</span><span class="pill"></span><span>◐ 22%</span></div>
+          <div class="scr-body">
+            <div class="apphdr"><span class="brand">Trip alert</span><span class="live">● Live</span></div>
+            <div class="alertbar"><span class="ic">!</span><div class="tx"><b>Your 2:30 AM bus was cancelled by the operator.</b> <span>Reported just now</span></div></div>
+            <div class="holdbox">
+              <b>We're already holding a seat</b><br>Next bus 3:15 AM · similar sleeper berth · 400 m from you.
+              <div class="timer">Seat held · 09:42</div>
+            </div>
+            <div class="tripcard">
+              <div class="tr"><span>Delhi</span><span class="ar">→</span><span>Dehradun</span></div>
+              <div class="meta">TIN 8842106 · 1 seat · ₹640 paid</div>
+            </div>
+            <div class="cta-btn">See my options</div>
+            <div class="helper">Your refund stays available either way</div>
+          </div>
+        </div></div>
+        <p class="cap"><b>1 · The moment it breaks.</b> The cancellation fires a rescue instead of a silent refund — and a seat is already held while the passenger reads.</p>
+      </div>
+
+      <div class="phone-col">
+        <div class="phone"><div class="screen">
+          <div class="notch"><span>2:48</span><span class="pill"></span><span>◐ 21%</span></div>
+          <div class="scr-body">
+            <div class="apphdr"><span class="brand">Choose an option</span><span class="live g">Seat held 09:12</span></div>
+            <div class="opt go"><div class="l"><b>Confirmed seat · 3:15 AM</b><br><span>Sharma Travels · sleeper L4 · +₹40</span></div><div class="r">Board</div></div>
+            <div class="opt go"><div class="l"><b>Hotel near you · tonight</b><br><span>1.2 km · ₹499 instead of ₹1,250</span></div><div class="r">Book</div></div>
+            <div class="opt"><div class="l"><b>Full refund · ₹640</b><br><span>to source · 3–5 days</span></div><div class="r grey">Refund</div></div>
+            <div class="gtag">With Journey Guarantee, the seat and the stay are covered — you pay nothing extra.</div>
+            <div class="helper">Options refresh as seats fill</div>
+          </div>
+        </div></div>
+        <p class="cap"><b>2 · The choice.</b> Onward seat, safe stay, or refund — price and timing up front. The passenger decides, never the system.</p>
+      </div>
+
+      <div class="phone-col">
+        <div class="phone"><div class="screen">
+          <div class="notch"><span>2:49</span><span class="pill"></span><span>◐ 21%</span></div>
+          <div class="scr-body">
+            <div class="safebox">
+              <div class="ring"></div>
+              <h6>You're on the 3:15</h6>
+              <p>Ticket updated. Refund adjusted — you paid ₹40 extra.</p>
+            </div>
+            <div class="ticketcard">
+              <div class="ticketrow"><span class="k2">Operator</span><span class="v2">Sharma Travels</span></div>
+              <div class="ticketrow"><span class="k2">Seat</span><span class="v2">L4 · Sleeper</span></div>
+              <div class="ticketrow"><span class="k2">Boarding</span><span class="v2">Kashmere Gate · 400 m</span></div>
+              <div class="ticketrow"><span class="k2">Departs</span><span class="v2">3:15 AM</span></div>
+            </div>
+            <div class="safe-row"><span class="tag2">Live status shared</span><span class="tag2">Support on call</span></div>
+            <div class="cta-btn go">View new ticket</div>
+          </div>
+        </div></div>
+        <p class="cap"><b>3 · Rescued.</b> A confirmed ticket in under three minutes — the night that would otherwise have ended at "refund initiated".</p>
+      </div>
+    </div>
+    <div class="legend">
+      <span><span class="swatch" style="background:var(--go)"></span> Onward / stay options</span>
+      <span><span class="swatch" style="background:var(--beacon)"></span> Cancellation detected</span>
+      <span><span class="swatch" style="background:#8b93a3"></span> Refund — the floor</span>
+    </div>
+  </section>
+
+  <!-- ===== 04 SUCCESS METRICS ===== -->
+  <section class="stage" id="s3">
+    <div class="stage-head">
+      <span class="num">04 / SUCCESS METRICS</span>
+      <h2>Measuring the rescue</h2>
+      <p class="sub">One number tells us the product works; two payoffs tell us the business should care; a few guardrails keep it honest.</p>
+    </div>
+
+    <div class="callout insight">
+      <span class="tag">Success in one sentence</span>
+      <p style="margin:0">When an operator cancels, the passenger still gets where they're going — or gets a safe night — <strong>through redBus, in one tap</strong>, instead of being left with a refund.</p>
+    </div>
+
+    <h3 class="blk">1 · The one number I'd watch</h3>
+    <div class="mnode north">
+      <div class="k">North star · Rescue rate</div>
+      <div class="v">Of all operator-cancelled bookings, the share where the passenger takes an onward option instead of just a refund.</div>
+      <div class="d">100 cancellations tonight → 62 board the held bus, 8 take the stay = <strong style="color:#fff">70% rescue rate</strong>.</div>
+    </div>
+
+    <h3 class="blk">2 · Why that number matters — two payoffs</h3>
+    <p class="read"><strong>Retention:</strong> the passengers most likely to churn are the ones a booking just failed — rescue converts the worst experience on the platform into the most loyalty-building one, measured as <strong>post-cancellation repeat-booking rate</strong> (a number that silently dies today). <strong>Revenue:</strong> the Journey Guarantee is a new revenue line — <strong>attach rate × price − payouts</strong> <span style="color:var(--muted)">(attach rate = share of bookings that add it on)</span>. On 1,000 night bookings at a 20% attach rate and ₹119: ₹23,800 collected, against ₹600–6,000 in claims depending on how they resolve.</p>
+
+    <h3 class="blk">3 · The supporting signals</h3>
+    <div class="grid2">
+      <div>
+        <h4 class="sub">Leading — should improve</h4>
+        <ul class="clean go">
+          <li><strong>Hold-to-board conversion</strong> — do held seats get taken?</li>
+          <li><strong>Attach rate</strong> <span style="color:var(--muted)">(share of bookings that add the Guarantee on)</span> — are people willing to pay for certainty?</li>
+          <li><strong>Stay take-rate</strong> late-night — is the hotel rung real or decorative?</li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="sub">Guardrails — must not get worse</h4>
+        <ul class="clean">
+          <li><strong>Payout ratio</strong> <span style="color:var(--muted)">(claims paid ÷ premium collected)</span> — if it climbs past what the price assumed, the add-on is losing money and must be repriced.</li>
+          <li><strong>Operator cancellation rate</strong> — must not <em>rise</em> because a safety net now exists.</li>
+          <li><strong>Refund still one tap</strong> — we must never bury or slow the refund button to push people into a rescue. The rescue should win because it's the better option, not because the refund got harder to find. Tracked as taps and seconds to reach it.</li>
+        </ul>
+      </div>
+    </div>
+
+
+    <h3 class="blk">4 · How I'd test it</h3>
+    <ul class="clean">
+      <li><strong>Pilot on dense night corridors</strong> (Delhi–Dehradun, Delhi–Jaipur class routes) rather than a user-level A/B — you don't withhold a safety option from a control group at 3 AM. Compare against matched corridors.</li>
+      <li><strong>Primary read:</strong> rescue rate and post-cancellation repeat-booking. <strong>Business read:</strong> attach rate and payout ratio.</li>
+      <li><strong>Hold rules set up front:</strong> pause if the payout ratio breaches what the price assumed; investigate immediately if operator cancellations climb on pilot corridors.</li>
+    </ul>
+  </section>
+
+  <!-- ===== 05 TRADEOFFS & EDGE CASES ===== -->
+  <section class="stage" id="s4">
+    <div class="stage-head">
+      <span class="num">05 / TRADEOFFS &amp; EDGE CASES</span>
+      <h2>The hard parts, honestly</h2>
+      <p class="sub">A guarantee is a trust product — it creates its own risks, and it breaks in specific places. Naming them is the job.</p>
+    </div>
+
+
+    <h3 class="blk">Risks &amp; mitigations</h3>
+    <div class="grid2">
+      <div class="callout" style="margin:0"><span class="tag" style="color:var(--muted)">Adverse selection</span><p style="margin:0;font-size:15px">Riskiest routes and hours buy the most protection, draining the pool.<br><strong style="display:block;margin-top:8px">Mitigation:</strong> price by route and hour — that's standard insurance, and redBus has the failure data to do it.</p></div>
+      <div class="callout" style="margin:0"><span class="tag" style="color:var(--muted)">Operator moral hazard</span><p style="margin:0;font-size:15px">"Passengers get rescued anyway" makes cancelling feel cheaper for operators.<br><strong style="display:block;margin-top:8px">Mitigation:</strong> cancellation rate feeds a reliability score that affects search ranking — visibility is the one currency every operator cares about.</p></div>
+      <div class="callout" style="margin:0"><span class="tag" style="color:var(--muted)">Rationing rescue by who paid</span><p style="margin:0;font-size:15px">Priority hold means paying passengers get scarce alternate seats first — everyone was failed equally, but not everyone is helped equally.<br><strong style="display:block;margin-top:8px">Mitigation:</strong> the free tier still gets a real held seat, not a suggestion; priority only decides <em>order</em> when supply is short. Worth stating plainly rather than hiding.</p></div>
+      <div class="callout" style="margin:0"><span class="tag" style="color:var(--muted)">Hold feasibility</span><p style="margin:0;font-size:15px">If seats can't be reliably held at cancellation time, the product collapses into suggestions.<br><strong style="display:block;margin-top:8px">Mitigation:</strong> the hold reuses the existing checkout seat-block; prototype this first — it's the kill-or-ship question.</p></div>
+      <div class="callout" style="margin:0"><span class="tag" style="color:var(--muted)">Over-promise on thin routes</span><p style="margin:0;font-size:15px">Some routes have no alternate bus at 3 AM, ever.<br><strong style="display:block;margin-top:8px">Mitigation:</strong> the Guarantee's payout defaults to the stay or refund-plus-credit there — and says so plainly at purchase. Never promise a bus that can't exist.</p></div>
+    </div>
+
+    <h3 class="blk">Edge cases</h3>
+    <ul class="clean">
+      <li><strong>Thin route, no alternate bus.</strong> The rescue degrades gracefully: stay → refund + credit. Stated up front when the Guarantee is bought.</li>
+      <li><strong>Woman alone at night.</strong> Ordering flips: if the next bus is hours away, the stay surfaces first, with live-status sharing and a priority support line.</li>
+      <li><strong>Passenger late, bus ran fine.</strong> No payout — the trigger is the operator's cancellation event, not a claim. This is what keeps the pool honest.</li>
+      <li><strong>Long delay, not a cancellation.</strong> Different flow: live ETA plus a choice — wait, or convert to a rescue if the delay crosses a threshold.</li>
+      <li><strong>"Isn't this Free Cancellation?"</strong> No — Free Cancellation covers <em>the passenger</em> changing plans; Journey Guarantee covers <em>the operator</em> failing them. Different products, and the checkout copy must keep them apart.</li>
+      <li><strong>Hotel full at 3 AM.</strong> Fall back to the next nearest partner property, else credit — the cap already bounds the cost.</li>
+    </ul>
+
+
+  </section>
+
+  <!-- PREV / NEXT -->
+  <div class="prevnext">
+    <button class="pn-btn prev" id="prevBtn"><span class="k">← Previous</span><span class="t" id="prevT">—</span></button>
+    <button class="pn-btn next" id="nextBtn"><span class="k">Next →</span><span class="t" id="nextT">—</span></button>
+  </div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div><b>The Bus That Never Came</b> — a redBus product case study</div>
+    <div class="foot-note">A self-directed PM case study. The "today" behaviour is based on redBus's public terms, help pages, and user reports, and should be verified against the live app. All sizing, pricing, and unit-economics figures are illustrative estimates to validate. Product concepts are proposals, not shipped features.</div>
+  </div>
+</footer>
+
+<script>
+  const stages = ['s0','s1','s2','s3','s4'];
+  const titles = ['The Problem','Users & Market','Solution','Success Metrics','Tradeoffs'];
+  const navBtns = Array.from(document.querySelectorAll('.snav-btn'));
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const prevT = document.getElementById('prevT');
+  const nextT = document.getElementById('nextT');
+  let cur = 0;
+
+  function render(i){
+    cur = i;
+    stages.forEach((id,idx)=>{
+      document.getElementById(id).classList.toggle('active', idx===i);
+      navBtns[idx].setAttribute('aria-selected', idx===i ? 'true':'false');
+    });
+    prevBtn.disabled = (i===0);
+    nextBtn.disabled = (i===stages.length-1);
+    prevT.textContent = i>0 ? titles[i-1] : '—';
+    nextT.textContent = i<stages.length-1 ? titles[i+1] : '—';
+    const navEl = document.querySelector('.stagenav');
+    const y = navEl ? navEl.offsetHeight : 0;
+    window.scrollTo({top: Math.max(0, document.getElementById(stages[i]).offsetTop - y - 12), behavior:'smooth'});
+    navBtns[i].scrollIntoView({inline:'center', block:'nearest', behavior:'smooth'});
+  }
+
+  navBtns.forEach((b,idx)=> b.addEventListener('click', ()=> render(idx)));
+  prevBtn.addEventListener('click', ()=> { if(cur>0) render(cur-1); });
+  nextBtn.addEventListener('click', ()=> { if(cur<stages.length-1) render(cur+1); });
+  document.addEventListener('keydown', e=>{
+    if(e.target.matches('input,textarea')) return;
+    if(e.key==='ArrowRight' && cur<stages.length-1) render(cur+1);
+    if(e.key==='ArrowLeft' && cur>0) render(cur-1);
+  });
+
+  render(0);
+</script>
+</body>
+</html>
